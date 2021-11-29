@@ -88,7 +88,7 @@
                                
                             </div>            
                             <div class="col text-right">
-                                <a href="{{route('show.currencies', app()->getLocale())}}" class="btn btn-primary btn-round bg-blue float-right  m-l-10">{{__('Agregar Método de Pago')}}</a>
+                                <a href="{{route('show.currencies', app()->getLocale())}}" class="btn btn-primary btn-round bg-blue float-right  m-l-10">{{__('Add Wallet')}}</a>
                             </div>
                         </div>
                     </div>

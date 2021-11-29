@@ -107,8 +107,6 @@ Route::group(['prefix' => '{language}', 'middleware' => ['setLanguage']],functio
 
 		//WALLET ROUTES
 		Route::get('transfer/{currency_id}/methods', 'WalletController@showTransferMethods')->middleware('auth')->name('show.transfermethods');
-		Route::get('metodosFondeo', 'WalletController@metodosFondeo')->middleware('auth')->name('mostrar.metodosfondeo'); // Radas
-
 		Route::get('currencies/methods', 'WalletController@showCurrencies')->middleware('auth')->name('show.currencies');
 		Route::get('wallet/create/{method_id}', 'WalletController@showCreateWalletForm')->middleware('auth')->name('show.createwalletform');
 		Route::post('wallet/create', 'WalletController@createWallet')->middleware('auth')->name('create.wallet');
@@ -136,20 +134,10 @@ Route::group(['prefix' => '{language}', 'middleware' => ['setLanguage']],functio
 		Route::get('/addcredit/{method_id?}', 'AddCreditController@addCreditForm')->name('add.credit')->middleware(['auth','activeUser']);
 		Route::get('/deposit', 'AddCreditController@depositMethods')->name('deposit.credit')->middleware('auth');
 		Route::get('/deposit/{wallet_id}', 'AddCreditController@depositByWallet')->name('deposit.transfer.form')->middleware('auth');
-
-		Route::get('/agregarFondeo/{wallet_id}', 'AddCreditController@agregarFondeo')->name('fondeos.agregarFondeo.form')->middleware('auth'); // Radas 		
-		
-		Route::post('/addcredit', 'AddCreditController@depositRequest')->name('post.credit')->middleware('auth'); 
-
-		Route::post('/calcularFondeo', 'AddCreditController@calcularFondeo')->name('post.calcularFondeo')->middleware('auth'); // Radas
-
-		Route::post('/confirmarFondeo', 'AddCreditController@confirmarFondeo')->name('post.confirmarFondeo')->middleware('auth'); // Radas
+		Route::post('/addcredit', 'AddCreditController@depositRequest')->name('post.credit')->middleware('auth');
 
 		/*	DEPOSITS ROUTES	*/
 		Route::get('/mydeposits','DepositController@myDeposits')->name('mydeposits')->middleware('auth');
-
-		Route::get('/fondeos','DepositController@fondeos')->name('fondeos')->middleware('auth'); // Radas
-
 		Route::put('/confirm/deposit','DepositController@confirmDeposit')->name('confirm.deposit')->middleware('auth');
 
 		/* WITHDRAWAL ROUTES */

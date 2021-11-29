@@ -17,20 +17,6 @@
                             <a href="{{url(app()->getLocale().'/')}}/exchange/first/0/second/0"><i class="icon-refresh"></i><span>{{__('Exchange')}}</span></a>
                         </li>
                         --}}
-                        <li class="{{ (Route::is('fondeos') ? 'active open' : '') }}"> 
-                            <a href="{{route('fondeos',  app()->getLocale())}}"><i class="icon-arrow-down"></i><span>
-                            {{__('Fondeo')}}</span></a>
-                        </li>
-                        <li class="{{ (Route::is('withdrawal.index') ? 'active open' : '') }}"> 
-                            <a href="{{route('withdrawal.index',  app()->getLocale())}}"><i class="icon-arrow-up"></i><span>
-                            {{__('Retiros')}}</span></a>
-                        </li> 
-                        @if(Auth::user()->role_id != 1)
-                        <li class="{{ (Route::is('my_vouchers') ? 'active open' : '') }}"> 
-                            <a href="{{url( app()->getLocale().'/')}}/my_vouchers"><i class="icon-speedometer"></i><span>
-                            {{__('Vouchers')}}</span></a>
-                        </li>
-                        @endif
                         <li class="{{ (Route::is('sendMoneyForm') ? 'active open' : '') }}"> 
                             <a href="{{route('sendMoneyForm', app()->getLocale())}}"><i class="icon-arrow-right"></i><span>{{__('Send')}}</span></a>
                         </li>
@@ -59,6 +45,20 @@
                             <a href="{{ route('mymerchants',  app()->getLocale()) }}"><i class="icon-speedometer"></i><span>
                             {{__('Integration')}}</span></a>
                         </li>
+                        <li class="{{ (Route::is('mydeposits') ? 'active open' : '') }}"> 
+                            <a href="{{route('mydeposits',  app()->getLocale())}}"><i class="icon-arrow-down"></i><span>
+                            {{__('My Deposits')}}</span></a>
+                        </li>
+                        <li class="{{ (Route::is('withdrawal.index') ? 'active open' : '') }}"> 
+                            <a href="{{route('withdrawal.index',  app()->getLocale())}}"><i class="icon-arrow-up"></i><span>
+                            {{__('My Withdrawals')}}</span></a>
+                        </li> 
+                        @if(Auth::user()->role_id != 1)
+                        <li class="{{ (Route::is('my_vouchers') ? 'active open' : '') }}"> 
+                            <a href="{{url( app()->getLocale().'/')}}/my_vouchers"><i class="icon-speedometer"></i><span>
+                            {{__('Vouchers')}}</span></a>
+                        </li>
+                        @endif
                         {{--
                         <li><a href="javascript:void(0);" class="menu-toggle"><i class="icon-grid"></i><span>App</span></a>
                             <ul class="ml-menu">

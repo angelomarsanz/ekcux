@@ -29,8 +29,6 @@ class WalletController extends Controller
 
     }
 
-    // Redas - Inicio
-
     public function showCreateWalletForm(Request $request, $lang, $method_id){
         if (Auth::check()) {
            
@@ -41,11 +39,9 @@ class WalletController extends Controller
         return redirect(app()->getLocale().'/');
     }
 
-    // Redas - Fin
-
     public function showCurrencies(Request $request, $lang){
         if (Auth::check()) {
-            $currencies = Currency::whereNotIn('id', [13, 14, 15, 18])->paginate(10);
+            $currencies = Currency::paginate(10);
             if(count($currencies) <= 0){
                 dd('contact admin to add some currencies to work with');
             }
@@ -75,8 +71,6 @@ class WalletController extends Controller
 
         $currencyWallet = Wallet::with('TransferMethods')->where('currency_id', $method->currency_id)->where('user_id', Auth::user()->id)->first();
 
-        // Radas - Inicio
-        /*
         if($currencyWallet != null){
 
             foreach ($currencyWallet->TransferMethods as $transfer_method) {
@@ -120,34 +114,6 @@ class WalletController extends Controller
         Auth::user()->wallet_id = $wallet->id;
         Auth::user()->save();
 
-        */  
-
-        $wallet = wallet::create([
-            'is_crypto' =>  $currency->is_crypto,
-            'user_id'   => Auth::user()->id,
-            'amount'    =>  0,
-            'currency_id'   => $currency->id,
-            'transfer_method_id'    => $request->transfer_method_id,
-            'accont_identifier_mechanism_value' =>  $request->accont_identifier_mechanism_id,
-        ]);
-        $wallet->TransferMethods()->attach($method, ['user_id'=>Auth::user()->id,'adress' => $request->accont_identifier_mechanism_id]);
-
-        // Radas - Fin
-
         return redirect(app()->getLocale().'/home');
     }
-
-    // Redas - Inicio
-
-    public function metodosFondeo(){
-        if (Auth::check()) {
-
-            $billeterasUsuario = Wallet::with('TransferMethods')->where('user_id', Auth::user()->id)->whereNotIn('transfer_method_id', [12, 17, 18])->paginate('10');
-
-        	return view('fondeos.metodos_fondeo')->with('billeterasUsuario', $billeterasUsuario);
-        }
-        return redirect(app()->getLocale().'/');
-    }
-    // Redas - fin
-
 }

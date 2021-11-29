@@ -15,12 +15,12 @@
                             @endforeach
                        
                             <li>
-                                  <a href="{{url('/')}}/{{app()->getLocale()}}/metodosFondeo">{{__('FONDEO')}}</a>
+                                  <a href="{{url('/')}}/{{app()->getLocale()}}/deposit/{{Auth::user()->currentWallet()->id}}">{{__('DEPOSIT')}}</a>
                                    <hr style="margin: 0;">
                             </li>
                             
                             <li>
-                                  <a href="{{url('/')}}/{{app()->getLocale()}}/metodosFondeo" >{{__('RETIROS')}}</a>
+                                  <a href="{{url('/')}}/{{app()->getLocale()}}/payout/{{Auth::user()->currentWallet()->id}}" >{{__('WITHDRAW')}}</a>
                                   <hr style="margin: 0;">
                             </li>
                             {{--
@@ -118,7 +118,7 @@
         @endif 
 
     @endif
-    <!-- @if(count(Auth::user()->wallets()))
+    @if(count(Auth::user()->wallets()))
         @foreach(Auth::user()->wallets() as $someWallet)
         <div class="row ">
             <div class="col">
@@ -143,7 +143,7 @@
             </div>
         </div>
         @endforeach
-    @endif -->
+    @endif
  
     @if(Auth::user()->role_id == 1 or Auth::user()->is_ticket_admin )
     <div class="card hidden-sm">

@@ -5,7 +5,6 @@ use App\Models\Wallet;
 use Storage;
 use App\Models\Ticketcomment;
 use App\Models\Currency;
-use App\Models\TransferMethod;
 use Illuminate\Notifications\Notifiable;
 use Lab404\Impersonate\Models\Impersonate;
 use Illuminate\Foundation\Auth\User as Authenticatable;
@@ -109,8 +108,10 @@ class User extends \TCG\Voyager\Models\User
         }
 
         $currency = Currency::orderBy('id','asc')->first();
-        $wallet = $this->newWallet(15);
+        $wallet = $this->newWallet($currency->id);
 
+        $this->currency_id  =  $currency->id;
+        $this->save();
         return Wallet::with('Currency')->where('id', $this->wallet_id)->where('user_id', $this->id)->first();
     }
 
@@ -132,28 +133,15 @@ class User extends \TCG\Voyager\Models\User
         if (!is_null($wallet)) {
             return $wallet;
         }
-        
-        $currency = Currency::findOrFail($currency_id);
 
-        $method = TransferMethod::findOrFail(15);
+        // $currency = Currency::findOrFail($currency_id);
 
-        $wallet = wallet::create([
-            'is_crypto' =>  0,
-            'user_id'   => $this->id,
-            'amount'    =>  0,
-            'currency_id'   => $currency_id,
-            'transfer_method_id'    => 12,
-            'accont_identifier_mechanism_value' => $this->email
-        ]);
-
-        $wallet->TransferMethods()->attach($method, ['user_id'=>$this->id,'adress' => $this->email]);
-
-        $this->currency_id = $currency_id;
-        $this->wallet_id = $wallet->id;
-        $this->save();
-
-        return $wallet;
-        
+        // return Wallet::create([
+        //     'is_crypto' =>  $currency->is_crypto,
+        //     'user_id'   =>  $this->id,
+        //     'currency_id'   =>  $currency_id,
+        //     'amount'    =>  0,
+        // ]);
     }
 
     public function getBalanceAttribute($value){

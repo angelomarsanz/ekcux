@@ -10,7 +10,7 @@
   	 @if($withdrawals->total()>0)
      <div class="card">
         <div class="header">
-            <h2><strong>{{__('Retiros')}}</strong></h2>
+            <h2><strong>{{__('My withdrawals')}}</strong></h2>
             
         </div>
         <div class="body">

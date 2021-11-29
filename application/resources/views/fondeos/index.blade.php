@@ -1,16 +1,17 @@
+<!-- Radas -->
 @extends('layouts.app')
 
 @section('content')
 {{-- @include('partials.nav') --}}
     <div class="row">
-        @include('partials.sidebar')
+      @include('partials.sidebar') 
 		
 		  <div class="col-md-9 ">
         
 	        @if($deposits->total()>0)
           <div class="card">
             <div class="header">
-                <h2><strong>{{__('My Deposits')}}</strong></h2>
+                <h2><strong>{{__('Fondeo')}}</strong></h2>
                 
             </div>
             <div class="body">
@@ -52,7 +53,7 @@
               </div>
             @else
             @endif
-        </div>
+          </div>
           @endif
 
     	</div>
@@ -64,3 +65,4 @@
 @section('footer')
   @include('partials.footer')
 @endsection
+<!-- Radas -->
