@@ -5,7 +5,7 @@
             <h2> <strong style="color:#191f28">{{ __('Balance')}}</strong></h2>
             <ul class="header-dropdown">
                     <li class="dropdown"> <a href="javascript:void(0);" class="dropdown-toggle" data-toggle="dropdown" role="button" aria-haspopup="true" aria-expanded="false">
-                        <span class="badge badge-success" style="border-color: white;">{{__('Solicitar')}}</span> </a>
+                        <span class="badge badge-success" style="border-color: white;">{{__('Request')}}</span> </a>
                         <ul class="dropdown-menu dropdown-menu-right slideUp float-right">
                             @foreach(\App\Models\Wallet::where('id', '!=', Auth::user()->currentWallet()->id)->where('user_id', Auth::user()->id)->get() as $wallet )
                                <li>
@@ -13,21 +13,20 @@
                                
                                 </li> 
                             @endforeach
-                            <!-- Radas - Inicio -->
+                       
                             <li>
-                                  <a href="{{url('/')}}/{{app()->getLocale()}}/metodosFondeo">{{__('FONDEAR')}}</a>
+                                  <a href="{{url('/')}}/{{app()->getLocale()}}/metodosFondeo">{{__('FONDEO')}}</a>
                                    <hr style="margin: 0;">
                             </li>
                             
                             <li>
-                                  <a href="{{url('/')}}/{{app()->getLocale()}}/metodosRetiro" >{{__('RETIRAR')}}</a>
+                                  <a href="{{url('/')}}/{{app()->getLocale()}}/metodosFondeo" >{{__('RETIROS')}}</a>
                                   <hr style="margin: 0;">
                             </li>
-                            <!-- Radas - Fin -->
                             {{--
                             @if(count(\App\Models\Currency::where('id', '!=', Auth::user()->currentCurrency()->id)->get()))
                              <li>
-                                 <a href="{{url('/')}}/{{app()->getLocale()}}/exchange/first/0/second/0">{{ __('Cambiar Divisa')}}</a>
+                                 <a href="{{url('/')}}/{{app()->getLocale()}}/exchange/first/0/second/0">{{ __('Convert Currency')}}</a>
                             </li>
                             @endif
                             --}}
@@ -63,7 +62,7 @@
 
                 <div class="card">
                     <div class="header">
-                        <h2><strong>{{ __('En espera')}}</strong> #{{$escrow->id}}</h2>
+                        <h2><strong>On Hold</strong> #{{$escrow->id}}</h2>
                         <ul class="header-dropdown">
                             <li class="remove">
                                 <a role="button" class="boxs-close"><i class="zmdi zmdi-close"></i></a>
@@ -74,11 +73,11 @@
                         <h3 class="mb-0 pb-0">
                        -  {{ \App\Helpers\Money::instance()->value( $escrow->gross, $escrow->currency_symbol )}}       
                         </h3>
-                        {{ __('Depositar dinero a ')}} <a href="{{url('/')}}/{{app()->getLocale()}}/escrow/{{$escrow->id}}"><span class="text-primary">{{$escrow->toUser->name}}</span></a> <br> 
+                        Escrow money to  <a href="{{url('/')}}/{{app()->getLocale()}}/escrow/{{$escrow->id}}"><span class="text-primary">{{$escrow->toUser->name}}</span></a> <br> 
                         <form action="{{url('/')}}/{{app()->getLocale()}}/escrow/release" method="post">
                             {{csrf_field()}}
                             <input type="hidden" name="eid" value="{{$escrow->id}}">
-                            <input type="submit" class="btn btn-sm btn-round btn-primary btn-simple" value="{{_('Liberar')}}">
+                            <input type="submit" class="btn btn-sm btn-round btn-primary btn-simple" value="{{_('Release')}}">
                             
                         </form>
                     </div>
@@ -94,7 +93,7 @@
 
                 <div class="card">
                     <div class="header">
-                        <h2><strong>{{ __('En espera')}}</strong> #{{$escrow->id}}</h2>
+                        <h2><strong>On Hold</strong> #{{$escrow->id}}</h2>
                         <ul class="header-dropdown">
                             <li class="remove">
                                 <a role="button" class="boxs-close"><i class="zmdi zmdi-close"></i></a>
@@ -105,11 +104,11 @@
                         <h3 class="mb-0 pb-0">
                         +  {{ \App\Helpers\Money::instance()->value( $escrow->gross, $escrow->currency_symbol )}}       
                         </h3>
-                        {{ __('Depósito de ')}} <a href="{{url('/')}}/{{app()->getLocale()}}/escrow/{{$escrow->id}}"><span class="text-primary">{{$escrow->User->name}}</span></a> 
+                        Escrow money from <a href="{{url('/')}}/{{app()->getLocale()}}/escrow/{{$escrow->id}}"><span class="text-primary">{{$escrow->User->name}}</span></a> 
                         <form action="{{url('/')}}/{{app()->getLocale()}}/escrow/refund" method="post">
                             {{csrf_field()}}
                             <input type="hidden" name="eid" value="{{$escrow->id}}">
-                            <input type="submit" class="btn btn-sm btn-round btn-danger btn-simple" value="{{_('Reembolsar')}}">
+                            <input type="submit" class="btn btn-sm btn-round btn-danger btn-simple" value="{{_('refund')}}">
                         </form>
                     </div>
                 </div>
@@ -126,7 +125,7 @@
                 <a href="{{ url('/') }}/{{app()->getLocale()}}/wallet/{{$someWallet->id}}">
                 <div class="card info-box-2" style="cursor: pointer;min-height: auto;">
                     <div class="header" style="padding-bottom: 0">
-                        <h2><strong>{{ $someWallet->currency->name }}</strong> {{ __('Saldo disponible')}}</h2>
+                        <h2><strong>{{ $someWallet->currency->name }}</strong> {{ __('Balance')}}</h2>
                         <ul class="header-dropdown">
                             <li class="remove">
                               
@@ -149,7 +148,7 @@
     @if(Auth::user()->role_id == 1 or Auth::user()->is_ticket_admin )
     <div class="card hidden-sm">
         <div class="header">
-            <h2>{{ __('Área ')}}<strong>{{ __('Administrativa')}}</strong></h2>
+            <h2><strong>Admin</strong> area</h2>
             <ul class="header-dropdown">
                 <li class="remove">
                     <a role="button" class="boxs-close"><i class="zmdi zmdi-close"></i></a>
@@ -157,18 +156,18 @@
             </ul>
         </div>
         <div class="body">
-                   <h5 class="card-title">{{ __('Hola Sr. Administrador')}} {{Auth::user()->name}}</h5>
-                <p class="card-text">{{ __('En esta sección los enlaces sólo son visibles para los administradores')}}.</p>
+                   <h5 class="card-title">Howdy Mr. admin {{Auth::user()->name}}</h5>
+                <p class="card-text">In this section you have links that are only visible to admins.</p>
                  <div class="list-group mb-2">
-                    <a href="{{ route('makeVouchers', app()->getLocale()) }}" class="list-group-item list-group-item-action {{ (Route::is('makeVouchers') ? 'active' : '') }}">{{__('Generar Cupones')}}</a>
+                    <a href="{{ route('makeVouchers', app()->getLocale()) }}" class="list-group-item list-group-item-action {{ (Route::is('makeVouchers') ? 'active' : '') }}">{{__('Generate Vouchers')}}</a>
                     @if (Auth::user()->is_ticket_admin)
-                        <a href="{{ url('ticketadmin/tickets') }}" class="list-group-item list-group-item-action {{ (Route::is('support') ? 'active' : '') }}">{{__('Gestionar Tickets')}}</a>
+                        <a href="{{ url('ticketadmin/tickets') }}" class="list-group-item list-group-item-action {{ (Route::is('support') ? 'active' : '') }}">{{__('Manage Tickets')}}</a>
                     @endif
                     @if(Auth::user()->role_id == 1)
-                        <a href="{{ url('/') }}/{{app()->getLocale()}}/update_rates" class="list-group-item list-group-item-action ">{{__('Actualizar Tasas de Cambio')}}</a>
+                        <a href="{{ url('/') }}/{{app()->getLocale()}}/update_rates" class="list-group-item list-group-item-action ">{{__('Update Exchange Rates')}}</a>
                     @endif
                 </div>
-                <a href="{{url('/')}}/admin/dashboard" class="btn btn-primary btn-round">{{__('Ir al Panel de Control')}}</a>                  
+                <a href="{{url('/')}}/admin/dashboard" class="btn btn-primary btn-round">Go to admin dashboard</a>                  
             
         </div>
     </div> 
@@ -176,7 +175,7 @@
     @if(Auth::user()->role_id == 3)
     <div class="card hidden-sm">
         <div class="header">
-            <h2>{{__('Área del ')}}<strong>{{__('Agente')}}</h2>
+            <h2><strong>Agent</strong> area</h2>
             <ul class="header-dropdown">
                 <li class="remove">
                     <a role="button" class="boxs-close"><i class="zmdi zmdi-close"></i></a>
@@ -184,10 +183,10 @@
             </ul>
         </div>
         <div class="body ">
-            <h5 class="card-title">{{__('Hola Sr. Agente ')}} {{Auth::user()->name}}</h5>
-            <p class="card-text">{{__('En esta sección los enlaces sólo sopn visible para los Agentes')}}</p>
+            <h5 class="card-title">Howdy Mr. Agent {{Auth::user()->name}}</h5>
+            <p class="card-text">In this section you have links that are only visible to Agents</p>
                 <div class="list-group mb-2">
-                <a href="{{ route('makeVouchers', app()->getLocale()) }}" class="list-group-item list-group-item-action {{ (Route::is('makeVouchers') ? 'active' : '') }}">{{__('Cupones de Recarga')}}</a>
+                <a href="{{ route('makeVouchers', app()->getLocale()) }}" class="list-group-item list-group-item-action {{ (Route::is('makeVouchers') ? 'active' : '') }}">{{__('Recharge Vouchers')}}</a>
             </div>
         </div>
     </div> 

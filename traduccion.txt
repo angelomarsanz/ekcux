@@ -1,0 +1,5 @@
+/opt/lampp/htdocs/ekcux/application/resources/views/layouts/aside.blade.php
+/opt/lampp/htdocs/ekcux/application/resources/views/layouts/app_a.blade.php
+/opt/lampp/htdocs/ekcux/application/resources/views/partials/sidebar.blade.php
+/opt/lampp/htdocs/ekcux/application/app/Http/Controllers/WithdrawalController.php
+/opt/lampp/htdocs/ekcux/application/app/Http/Controllers/AddCreditController.php

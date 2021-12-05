@@ -93,6 +93,7 @@ class DepositController extends Controller
     	return redirect(url('/').'/admin/dashboard/deposits/'.$deposit->id);
 
     }
+    // Radas - inicio 
     public function fondeos(Request $request, $lang){
         if(Auth::user()->currentWallet() == null){
             return redirect(route('show.currencies', app()->getLocale()));
@@ -101,4 +102,5 @@ class DepositController extends Controller
     	return view('fondeos.index')
     	->with('deposits', $deposits);
     }
+    // Radas - fin
 }

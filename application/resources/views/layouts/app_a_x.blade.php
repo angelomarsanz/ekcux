@@ -84,10 +84,10 @@
                     <div class="body block-header">
                         <div class="row">
                             <div class="col">
-                                <h2 style="padding-top: 10px">{{__('Bienvenido nuevamente')}} {{ Auth::user()->name }} ! </h2>
+                                <h2 style="padding-top: 10px">{{__('Welcome back')}} {{ Auth::user()->name }} ! </h2>
                                
-                            </div>
-                            <!-- Radas - Inicio -->            
+                            </div>     
+                            <!-- Radas - Inicio -->       
                             <div class="col text-right">
                                 <a href="{{route('show.currencies', app()->getLocale())}}" class="btn btn-primary btn-round bg-blue float-right  m-l-10">{{__('Agregar Método de Pago')}}</a>
                             </div>

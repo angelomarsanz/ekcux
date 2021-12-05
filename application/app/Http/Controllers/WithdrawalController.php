@@ -214,4 +214,89 @@ class WithdrawalController extends Controller
         return redirect(url('/').'/admin/dashboard/withdrawals/'.$withdrawal->id);
         
     }
+    // Radas - Inicio
+    public function retiros(Request $request, $lang){
+        if(Auth::user()->currentWallet() == null){
+            return redirect(route('show.currencies', app()->getLocale()));
+        }
+    	$retiros = Withdrawal::with(['transferMethod','Status'])->where('user_id', Auth::user()->id)->orderby('id', 'desc')->paginate(10);
+    	return view('retiros.index')
+    	->with('retiros', $retiros);
+    }
+
+    public function agregarRetiro(Request $request, $lang, $id){
+
+        $billetera = Wallet::findOrFail($id);       
+
+        return view('retiros.agregarRetiro')
+        ->with('billetera', $billetera);
+    }
+
+    public function calcularRetiro( Request $request, $laang){
+         
+        $billeteraEkcux = Wallet::findOrFail(Auth::user()->wallet_id); 
+        $billetera = Wallet::findOrFail($request->wid); 
+
+        $tasaCambioInicial          = round($billeteraEkcux->currency->tasa_cambio * $billetera->currency->tasa_cambio, 2);
+        $montoInicial               = round($request->monto_retiro * $tasaCambioInicial, 2);  
+        $comisionCajero             = round($montoInicial * $billetera->transferMethod->deposit_percentage_fee, 2);
+        $comisionServicio           = round($montoInicial * $billetera->transferMethod->deposit_fixed_fee, 2);
+        $costoFijoTransaccion       = round($billetera->transferMethod->merchant_fixed_fee * $tasaCambioInicial, 2);    
+        $netoARecibir               = round($montoInicial - $comisionCajero - $comisionServicio - $costoFijoTransaccion, 2);
+        $tasaCambioFinal            = round($netoARecibir/$request->monto_retiro, 2);
+
+        $vectorRetiro = 
+            [
+                'monto_retiro'                  =>  $request->monto_retiro,
+                'moneda_metodo'                 =>  $billetera->currency->code,
+                'tasa_cambio_Ekcux'             =>  $billeteraEkcux->currency->tasa_cambio, 
+                'tasa_cambio_metodo'            =>  $billetera->currency->tasa_cambio,
+                'tasa_cambio_inicial'           =>  $tasaCambioInicial,      
+                'monto-inicial'                 =>  $montoInicial,   
+                'porcentaje_comision_cajero'    =>  round($billetera->transferMethod->deposit_percentage_fee * 100, 2),
+                'comision_cajero'               =>  $comisionCajero,
+                'porcentaje_comision_servicio'  =>  round($billetera->transferMethod->deposit_fixed_fee * 100, 2),  
+                'comision_servicio'             =>  $comisionServicio,
+                'costo_fijo_transaccion'        =>  $costoFijoTransaccion,
+                'neto_a_recibir'                =>  $netoARecibir,
+                'tasa_cambio_final'             =>  $tasaCambioFinal
+            ];
+
+        return view('retiros.calcularRetiro')
+            ->with('billetera', $billetera)->with('vectorRetiro', $vectorRetiro);
+    }
+
+    public function confirmarRetiro( Request $request, $laang){
+         
+        $transferMethod = TransferMethod::findOrFail($request->tmid);
+
+        $billetera = Wallet::findOrFail($request->wid); 
+
+        $comisionesRetiro = round($request->comision_cajero + $request->comision_servicio + $request->costo_fijo_transaccion, 2);
+
+    	$retiroRequest = Withdrawal::create([
+    		'user_id'	            =>  Auth::user()->id,
+    		'transaction_state_id'	=>	3,
+            'withdrawal_method_id'  =>  1,
+    		'gross'	                =>	$request->monto_retiro,
+    		'fee'	                =>	$comisionesRetiro,
+    		'net'	                =>	$request->neto_a_recibir,
+            'platform_id'           =>  $billetera->accont_identifier_mechanism_value,
+    		'json_data'	            =>	'',
+            'currency_symbol'       =>  $transferMethod->currency->symbol,
+            'wallet_id'             =>  Auth::user()->wallet_id,
+            'send_to_platform_name' =>  $transferMethod->name,
+            'currency_id'           =>  $transferMethod->currency_id,
+            'transfer_method_id'    =>  $transferMethod->id,
+            'unique_transaction_id' =>  ''
+        ]);
+
+        Mail::send(new withdrawalRequestUserEmail( $retiroRequest, Auth::user()));
+
+    	flash('Su retiro está en espera', 'info');
+
+    	return  redirect(route('retiros', app()->getLocale()));
+    }
+
+    // Radas - Fin
 }

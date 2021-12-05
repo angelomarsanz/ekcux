@@ -1,4 +1,4 @@
-<!-- Radas -->
+<!-- Radas - Inicio -->
 @extends('layouts.app')
 
 @section('content')
@@ -65,4 +65,4 @@
 @section('footer')
   @include('partials.footer')
 @endsection
-<!-- Radas -->
+<!-- Radas Fin -->

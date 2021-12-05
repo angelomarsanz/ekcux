@@ -165,7 +165,7 @@ class AddCreditController extends Controller
          
         $transferMethod = TransferMethod::findOrFail($request->tmid);
 
-        $comisionesFondeo = round($request->comision_cajero + $request->comision_servicio + $request->costo_fijo_transaccion);
+        $comisionesFondeo = round($request->comision_cajero + $request->comision_servicio + $request->costo_fijo_transaccion, 2);
 
     	$depositRequest = Deposit::create([
     		'user_id'	=>	Auth::user()->id,
@@ -186,7 +186,7 @@ class AddCreditController extends Controller
 
         Mail::send(new depositRequestUserEmail( $depositRequest, Auth::user()));
 
-    	flash('Your Deposit is Waiting for a review', 'info');
+    	flash('Su depósito está en espera', 'info');
 
     	return  redirect(route('fondeos', app()->getLocale()));
     }

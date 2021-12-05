@@ -107,7 +107,9 @@ Route::group(['prefix' => '{language}', 'middleware' => ['setLanguage']],functio
 
 		//WALLET ROUTES
 		Route::get('transfer/{currency_id}/methods', 'WalletController@showTransferMethods')->middleware('auth')->name('show.transfermethods');
-		Route::get('metodosFondeo', 'WalletController@metodosFondeo')->middleware('auth')->name('mostrar.metodosfondeo'); // Radas
+		
+		Route::get('metodosFondeo', 'WalletController@metodosFondeo')->middleware('auth')->name('mostrar.metodosfondeo'); // Redas
+		Route::get('metodosRetiro', 'WalletController@metodosRetiro')->middleware('auth')->name('mostrar.metodosretiro'); // Redas
 
 		Route::get('currencies/methods', 'WalletController@showCurrencies')->middleware('auth')->name('show.currencies');
 		Route::get('wallet/create/{method_id}', 'WalletController@showCreateWalletForm')->middleware('auth')->name('show.createwalletform');
@@ -137,18 +139,18 @@ Route::group(['prefix' => '{language}', 'middleware' => ['setLanguage']],functio
 		Route::get('/deposit', 'AddCreditController@depositMethods')->name('deposit.credit')->middleware('auth');
 		Route::get('/deposit/{wallet_id}', 'AddCreditController@depositByWallet')->name('deposit.transfer.form')->middleware('auth');
 
-		Route::get('/agregarFondeo/{wallet_id}', 'AddCreditController@agregarFondeo')->name('fondeos.agregarFondeo.form')->middleware('auth'); // Radas 		
+		Route::get('/agregarFondeo/{wallet_id}', 'AddCreditController@agregarFondeo')->name('fondeos.agregarFondeo.form')->middleware('auth'); // Redas 		
 		
 		Route::post('/addcredit', 'AddCreditController@depositRequest')->name('post.credit')->middleware('auth'); 
 
-		Route::post('/calcularFondeo', 'AddCreditController@calcularFondeo')->name('post.calcularFondeo')->middleware('auth'); // Radas
+		Route::post('/calcularFondeo', 'AddCreditController@calcularFondeo')->name('post.calcularFondeo')->middleware('auth'); // Redas
 
-		Route::post('/confirmarFondeo', 'AddCreditController@confirmarFondeo')->name('post.confirmarFondeo')->middleware('auth'); // Radas
+		Route::post('/confirmarFondeo', 'AddCreditController@confirmarFondeo')->name('post.confirmarFondeo')->middleware('auth'); // Redas
 
 		/*	DEPOSITS ROUTES	*/
 		Route::get('/mydeposits','DepositController@myDeposits')->name('mydeposits')->middleware('auth');
 
-		Route::get('/fondeos','DepositController@fondeos')->name('fondeos')->middleware('auth'); // Radas
+		Route::get('/fondeos','DepositController@fondeos')->name('fondeos')->middleware('auth'); // Redas
 
 		Route::put('/confirm/deposit','DepositController@confirmDeposit')->name('confirm.deposit')->middleware('auth');
 
@@ -158,8 +160,14 @@ Route::group(['prefix' => '{language}', 'middleware' => ['setLanguage']],functio
 		route::get('/payout/{wallet_id}', 'WithdrawalController@payoutForm')->name('payout.form')->middleware(['auth','activeUser']);
 		route::post('/withdrawal/request', 'WithdrawalController@makeRequest')->name('post.withdrawal')->middleware('auth');
 		route::get('/withdrawals', 'WithdrawalController@index')->name('withdrawal.index')->middleware('auth');
-
 		Route::put('/confirm/withdrawal','WithdrawalController@confirmWithdrawal')->name('confirm.withdrawal')->middleware('auth');
+
+		route::get('/retiros', 'WithdrawalController@retiros')->name('retiros')->middleware('auth'); // Redas 
+		Route::get('/agregarRetiro/{wallet_id}', 'WithdrawalController@agregarRetiro')->name('retiros.agregarRetiro.form')->middleware('auth'); // Redas 		
+
+		Route::post('/calcularRetiro', 'WithdrawalController@calcularRetiro')->name('post.calcularRetiro')->middleware('auth'); // Redas
+
+		Route::post('/confirmarRetiro', 'WithdrawalController@confirmarRetiro')->name('post.confirmarRetiro')->middleware('auth'); // Redas
 
 		/* EXCHANGE ROUTES */
 		route::get('/exchange/first/{first_id?}/second/{second_id?}', 'ExchangeController@getExchangeRequestForm')->name('exchange.form')->middleware('auth');

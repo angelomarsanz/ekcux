@@ -1,0 +1,4 @@
+--
+Cambios en la base de datos
+Se agregó la columna "tasa_cambio" en la tabla currencies
+--

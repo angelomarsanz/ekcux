@@ -1,3 +1,4 @@
+<!-- Radas - Inicio -->
 @extends('layouts.app')
 
 @section('content')
@@ -7,10 +8,10 @@
 		
 		<div class="col-md-9 " style="padding-right: 0">
      @include('partials.flash')
-  	 @if($withdrawals->total()>0)
+  	 @if($retiros->total()>0)
      <div class="card">
         <div class="header">
-            <h2><strong>{{__('My withdrawals')}}</strong></h2>
+            <h2><strong>{{__('Retiros')}}</strong></h2>
             
         </div>
         <div class="body">
@@ -27,14 +28,14 @@
                     </tr>
                   </thead>
                   <tbody>
-                    @forelse($withdrawals as $withdrawal)
+                    @forelse($retiros as $retiro)
                       <tr>
-                        <td>{{$withdrawal->created_at->format('d M Y')}} <br> @include ('withdrawals.partials.status')</td>
-                        <td>{{$withdrawal->transferMethod->name}}</td>
-                          <td>{{$withdrawal->platform_id}}</td>
-                        <td>{{$withdrawal->gross()}}</td>
-                        <td>{{$withdrawal->fee()}}</td>
-                        <td>{{$withdrawal->net()}}</td>
+                        <td>{{$retiro->created_at->format('d M Y')}} <br> @include ('retiros.partials.status')</td>
+                        <td>{{$retiro->transferMethod->name}}</td>
+                        <td>{{$retiro->platform_id}}</td>
+                        <td>{{$retiro->gross()}}</td>
+                        <td>{{$retiro->fee()}}</td>
+                        <td>{{$retiro->net()}}</td>
                       </tr>
                     @empty
                     @endforelse
@@ -42,9 +43,9 @@
                 </table>
             </div>  
         </div>
-         @if($withdrawals->LastPage() != 1)
+         @if($retiros->LastPage() != 1)
               <div class="footer">
-                  {{$withdrawals->links()}}
+                  {{$retiros->links()}}
               </div>
             @else
             @endif
@@ -58,3 +59,4 @@
 @section('footer')
   @include('partials.footer')
 @endsection
+<!-- Radas - Fin -->

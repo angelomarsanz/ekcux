@@ -29,8 +29,6 @@ class WalletController extends Controller
 
     }
 
-    // Redas - Inicio
-
     public function showCreateWalletForm(Request $request, $lang, $method_id){
         if (Auth::check()) {
            
@@ -40,8 +38,6 @@ class WalletController extends Controller
         }
         return redirect(app()->getLocale().'/');
     }
-
-    // Redas - Fin
 
     public function showCurrencies(Request $request, $lang){
         if (Auth::check()) {
@@ -75,52 +71,7 @@ class WalletController extends Controller
 
         $currencyWallet = Wallet::with('TransferMethods')->where('currency_id', $method->currency_id)->where('user_id', Auth::user()->id)->first();
 
-        // Radas - Inicio
-        /*
-        if($currencyWallet != null){
-
-            foreach ($currencyWallet->TransferMethods as $transfer_method) {
-                
-                if($transfer_method->id == $method->id ){
-
-                    if($transfer_method->pivot->adress != NULL){
-                        flash(__('Error, your '.$currency->name.' wallet already has '.$method->name.' as transfer method, please select another method'), 'danger');
-                        return back();
-                    }
-
-                    if($transfer_method->pivot->adress == NULL){
-                        return redirect(app()->getLocale().'/wupdate/'.$transfer_method->id);
-                    }
-
-                }
-            }
-
-            $currencyWallet->TransferMethods()->attach($method, ['user_id'=>Auth::user()->id,'adress' => $request->accont_identifier_mechanism_id]);
-
-            flash(__('success, '. $method->name .' attached to '.$currency->name.' wallet'), 'success');
-
-            return redirect(app()->getLocale().'/home');
-        }
-
-        if(is_null($currencyWallet)){
-            
-            $wallet = wallet::create([
-                'is_crypto' =>  $currency->is_crypto,
-                'user_id'   => Auth::user()->id,
-                'amount'    =>  0,
-                'currency_id'   => $currency->id,
-                'transfer_method_id'    => $request->transfer_method_id,
-                'accont_identifier_mechanism_value' =>  $request->accont_identifier_mechanism_id,
-            ]);
-            $wallet->TransferMethods()->attach($method, ['user_id'=>Auth::user()->id,'adress' => $request->accont_identifier_mechanism_id]);
-
-        }
-
-        Auth::user()->currency_id = $currency->id;
-        Auth::user()->wallet_id = $wallet->id;
-        Auth::user()->save();
-
-        */  
+        // Redas - Inicio
 
         $wallet = wallet::create([
             'is_crypto' =>  $currency->is_crypto,
@@ -132,7 +83,7 @@ class WalletController extends Controller
         ]);
         $wallet->TransferMethods()->attach($method, ['user_id'=>Auth::user()->id,'adress' => $request->accont_identifier_mechanism_id]);
 
-        // Radas - Fin
+        // Redas - Fin
 
         return redirect(app()->getLocale().'/home');
     }
@@ -148,6 +99,16 @@ class WalletController extends Controller
         }
         return redirect(app()->getLocale().'/');
     }
-    // Redas - fin
 
+    public function metodosRetiro(){
+        if (Auth::check()) {
+
+            $billeterasUsuario = Wallet::with('TransferMethods')->where('user_id', Auth::user()->id)->whereNotIn('transfer_method_id', [12, 17, 18])->paginate('10');
+
+        	return view('retiros.metodos_retiro')->with('billeterasUsuario', $billeterasUsuario);
+        }
+        return redirect(app()->getLocale().'/');
+    }
+
+    // Redas - fin
 }
