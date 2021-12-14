@@ -226,10 +226,12 @@ class WithdrawalController extends Controller
 
     public function agregarRetiro(Request $request, $lang, $id){
 
-        $billetera = Wallet::findOrFail($id);       
-
+        $billetera = Wallet::findOrFail($id); 
+        
+        $mensajeError = '';
+        
         return view('retiros.agregarRetiro')
-        ->with('billetera', $billetera);
+        ->with('billetera', $billetera)->with('mensajeError', $mensajeError);
     }
 
     public function calcularRetiro( Request $request, $laang){
@@ -237,33 +239,44 @@ class WithdrawalController extends Controller
         $billeteraEkcux = Wallet::findOrFail(Auth::user()->wallet_id); 
         $billetera = Wallet::findOrFail($request->wid); 
 
-        $tasaCambioInicial          = round($billeteraEkcux->currency->tasa_cambio * $billetera->currency->tasa_cambio, 2);
-        $montoInicial               = round($request->monto_retiro * $tasaCambioInicial, 2);  
-        $comisionCajero             = round($montoInicial * $billetera->transferMethod->deposit_percentage_fee, 2);
-        $comisionServicio           = round($montoInicial * $billetera->transferMethod->deposit_fixed_fee, 2);
-        $costoFijoTransaccion       = round($billetera->transferMethod->merchant_fixed_fee * $tasaCambioInicial, 2);    
-        $netoARecibir               = round($montoInicial - $comisionCajero - $comisionServicio - $costoFijoTransaccion, 2);
-        $tasaCambioFinal            = round($netoARecibir/$request->monto_retiro, 2);
+        $vectorRetiro = [];
+        $mensajeError = '';
 
-        $vectorRetiro = 
-            [
-                'monto_retiro'                  =>  $request->monto_retiro,
-                'moneda_metodo'                 =>  $billetera->currency->code,
-                'tasa_cambio_Ekcux'             =>  $billeteraEkcux->currency->tasa_cambio, 
-                'tasa_cambio_metodo'            =>  $billetera->currency->tasa_cambio,
-                'tasa_cambio_inicial'           =>  $tasaCambioInicial,      
-                'monto-inicial'                 =>  $montoInicial,   
-                'porcentaje_comision_cajero'    =>  round($billetera->transferMethod->deposit_percentage_fee * 100, 2),
-                'comision_cajero'               =>  $comisionCajero,
-                'porcentaje_comision_servicio'  =>  round($billetera->transferMethod->deposit_fixed_fee * 100, 2),  
-                'comision_servicio'             =>  $comisionServicio,
-                'costo_fijo_transaccion'        =>  $costoFijoTransaccion,
-                'neto_a_recibir'                =>  $netoARecibir,
-                'tasa_cambio_final'             =>  $tasaCambioFinal
-            ];
+        if ($billeteraEkcux->fiat >= $request->monto_retiro)
+        {
+            $tasaCambioInicial          = round($billeteraEkcux->currency->tasa_cambio * $billetera->currency->tasa_cambio, 2);
+            $montoInicial               = round($request->monto_retiro * $tasaCambioInicial, 2);  
+            $comisionCajero             = round($montoInicial * $billetera->transferMethod->deposit_percentage_fee, 2);
+            $comisionServicio           = round($montoInicial * $billetera->transferMethod->deposit_fixed_fee, 2);
+            $costoFijoTransaccion       = round($billetera->transferMethod->merchant_fixed_fee * $tasaCambioInicial, 2);    
+            $netoARecibir               = round($montoInicial - $comisionCajero - $comisionServicio - $costoFijoTransaccion, 2);
+            $tasaCambioFinal            = round($netoARecibir/$request->monto_retiro, 2);
 
-        return view('retiros.calcularRetiro')
-            ->with('billetera', $billetera)->with('vectorRetiro', $vectorRetiro);
+            $vectorRetiro = 
+                [
+                    'monto_retiro'                  =>  $request->monto_retiro,
+                    'moneda_metodo'                 =>  $billetera->currency->code,
+                    'tasa_cambio_Ekcux'             =>  $billeteraEkcux->currency->tasa_cambio, 
+                    'tasa_cambio_metodo'            =>  $billetera->currency->tasa_cambio,
+                    'tasa_cambio_inicial'           =>  $tasaCambioInicial,      
+                    'monto-inicial'                 =>  $montoInicial,   
+                    'porcentaje_comision_cajero'    =>  round($billetera->transferMethod->deposit_percentage_fee * 100, 2),
+                    'comision_cajero'               =>  $comisionCajero,
+                    'porcentaje_comision_servicio'  =>  round($billetera->transferMethod->deposit_fixed_fee * 100, 2),  
+                    'comision_servicio'             =>  $comisionServicio,
+                    'costo_fijo_transaccion'        =>  $costoFijoTransaccion,
+                    'neto_a_recibir'                =>  $netoARecibir,
+                    'tasa_cambio_final'             =>  $tasaCambioFinal
+                ];
+                return view('retiros.calcularRetiro')
+                ->with('billetera', $billetera)->with('vectorRetiro', $vectorRetiro)->with('mensajeError', $mensajeError)->with('montoRetiro', $request->monto_retiro);
+        }
+        else
+        {
+            $mensajeError = 'El monto del retiro ' . $request->monto_retiro . ' es superior al disponible ' . $billeteraEkcux->fiat;
+            return view('retiros.agregarRetiro')
+            ->with('billetera', $billetera)->with('mensajeError', $mensajeError)->with('montoRetiro', $request->monto_retiro);
+        }
     }
 
     public function confirmarRetiro( Request $request, $laang){
@@ -290,6 +303,41 @@ class WithdrawalController extends Controller
             'transfer_method_id'    =>  $transferMethod->id,
             'unique_transaction_id' =>  ''
         ]);
+
+        $retiro = Withdrawal::where(
+            [
+                ['user_id', Auth::user()->id],
+                ['gross', $request->monto_retiro,],
+                ['platform_id', $billetera->accont_identifier_mechanism_value],
+                ['wallet_id', Auth::user()->wallet_id],
+                ['send_to_platform_name', $transferMethod->name],
+                ['currency_id', $transferMethod->currency_id],
+                ['transfer_method_id', $transferMethod->id],
+            ])
+            ->orderby('id', 'desc')
+            ->first();
+
+        $billeteraEkcux = Wallet::findOrFail(Auth::user()->wallet_id); 
+
+        Auth::user()->RecentActivity()->save($retiro->Transactions()->create([
+            'user_id'               =>  Auth::user()->id,
+            'entity_id'             =>  Auth::user()->id,
+            'entity_name'           =>  $transferMethod->name,
+            'transaction_state_id'  =>  3,
+            'money_flow'            => '-',
+            'activity_title'        =>  'Retiro',
+            'balance'               =>  $billeteraEkcux->fiat,
+            'thumb'                 =>  $transferMethod->thumbnail,
+            'gross'                 =>  $request->monto_retiro,
+            'fee'                   =>  $comisionesRetiro,
+            'net'                   =>  $request->neto_a_recibir,
+            'currency_id'           =>  $transferMethod->currency_id,
+            'currency_symbol'       =>  $transferMethod->currency->symbol,
+        ]));
+
+        $billeteraEkcux = Wallet::findOrFail(Auth::user()->wallet_id); 
+        $billeteraEkcux->fiat = $billeteraEkcux->fiat - $request->monto_retiro;
+        $billeteraEkcux->save();
 
         Mail::send(new withdrawalRequestUserEmail( $retiroRequest, Auth::user()));
 

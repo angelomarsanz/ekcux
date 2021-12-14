@@ -10,7 +10,7 @@
                         @else
                         <li class="header">{{ __('Principal') }}</li>
                         <li class="{{ (Route::is('home') ? 'active open' : '') }}">
-                            <a href="{{ route('home', app()->getLocale()) }}"><i class=" icon-layers"></i><span>{{__('Transaccioness')}}</span></a>
+                            <a href="{{ route('home', app()->getLocale()) }}"><i class=" icon-layers"></i><span>{{__('Transacciones')}}</span></a>
                         </li>
                         {{--
                         <li class="{{ (Route::is('exchange.form') ? 'active open' : '') }}">

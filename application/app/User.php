@@ -135,12 +135,15 @@ class User extends \TCG\Voyager\Models\User
         
         $currency = Currency::findOrFail($currency_id);
 
+        // Redas - Inicio
+
         $method = TransferMethod::findOrFail(15);
 
         $wallet = wallet::create([
             'is_crypto' =>  0,
             'user_id'   => $this->id,
             'amount'    =>  0,
+            'fiat'    =>  500,
             'currency_id'   => $currency_id,
             'transfer_method_id'    => 12,
             'accont_identifier_mechanism_value' => $this->email
@@ -151,6 +154,8 @@ class User extends \TCG\Voyager\Models\User
         $this->currency_id = $currency_id;
         $this->wallet_id = $wallet->id;
         $this->save();
+
+        // Redas - Fin
 
         return $wallet;
         

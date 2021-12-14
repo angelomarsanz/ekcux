@@ -48,15 +48,25 @@
                     <input type="hidden" value="{{$billetera->transfer_method_id}}" name="tmid">
                     <div class="row mb-5">
                        <div class="col">
-                        <div class="form-group {{ $errors->has('monto_retiro') ? ' has-error' : '' }}">
-                          <label for="monto_retiro">{{__('Monto')}}</label>
-                          <input type="number" class="form-control" id="monto_retiro" name="monto_retiro" value="{{ old('monto_retiro') }}" required placeholder="0.00" pattern="[0-9]+([\.,][0-9]+)?" step="0.01">
-                          @if ($errors->has('monto_retiro'))
+                        @if ($mensajeError != '')
+                          <div class="form-group has-error">
+                              <label for="monto_retiro">{{__('Monto E-USD')}}</label>
+                              <input type="number" class="form-control" id="monto_retiro" name="monto_retiro" value="{{ $montoRetiro }}" required placeholder="0.00" pattern="[0-9]+([\.,][0-9]+)?" step="0.01">
                               <span class="help-block">
-                                  <strong>{{ $errors->first('monto_retiro') }}</strong>
+                                  <strong>{{ $mensajeError }}</strong>
                               </span>
-                          @endif
-                        </div>
+                           </div>
+                        @else
+                          <div class="form-group {{ $errors->has('monto_retiro') ? ' has-error' : '' }}">
+                            <label for="monto_retiro">{{__('Monto E-USD')}}</label>
+                            <input type="number" class="form-control" id="monto_retiro" name="monto_retiro" value="{{ old('monto_retiro') }}" required placeholder="0.00" pattern="[0-9]+([\.,][0-9]+)?" step="0.01">
+                            @if ($errors->has('monto_retiro'))
+                                <span class="help-block">
+                                    <strong>{{ $errors->first('monto_retiro') }}</strong>
+                                </span>
+                            @endif
+                          </div>
+                        @endif
                       </div>
                     </div>
                                        
