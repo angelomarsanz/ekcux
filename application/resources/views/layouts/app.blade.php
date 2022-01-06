@@ -83,13 +83,14 @@
                    
                     <div class="body block-header">
                         <div class="row">
+                            <!-- Redas Inicio -->
                             <div class="col">
-                                <h2 style="padding-top: 10px">{{__('Welcome back')}} {{ Auth::user()->name }} ! </h2>
-                               
+                                <h2 style="padding-top: 10px">{{__('Bienvenido nuevamente')}} {{ Auth::user()->name }} ! </h2>                               
                             </div>            
                             <div class="col text-right">
-                                <a href="{{route('show.currencies', app()->getLocale())}}" class="btn btn-primary btn-round bg-blue float-right  m-l-10">{{__('Agregar Método de Pago')}}</a>
+                                <a href="{{route('show.currencies', app()->getLocale())}}" class="btn btn-primary btn-round bg-blue float-right  m-l-10">{{__('Agregar método de pago')}}</a>
                             </div>
+                            <!-- Redas Fin -->
                         </div>
                     </div>
                 </div>
@@ -109,7 +110,7 @@
       <!-- Scripts -->
     @yield('footer')
 </section>
-    <!-- Jquery Core Js --> 
+<!-- Jquery Core Js --> 
     <script src="{{ asset('assets/js/libscripts.bundle.js') }}"></script> <!-- Lib Scripts Plugin Js ( jquery.v3.2.1, Bootstrap4 js) --> 
     <script src="http://ajax.aspnetcdn.com/ajax/jquery.validate/1.11.1/jquery.validate.min.js"></script>
     <script src="{{ asset('assets/js/vendorscripts.bundle.js')}}"></script> <!-- slimscroll, waves Scripts Plugin Js -->

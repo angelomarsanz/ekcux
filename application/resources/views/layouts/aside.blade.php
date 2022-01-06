@@ -9,7 +9,7 @@
                             <li><a class="nav-link" href="{{ route('register', app()->getLocale()) }}">{{ __('Registrarte') }}</a></li>
                         @else
                         <li class="header">{{ __('Principal') }}</li>
-                        <li class="{{ (Route::is('home') ? 'active open' : '') }}">
+                            <li class="{{ (Route::is('home') ? 'active open' : '') }}"> 
                             <a href="{{ route('home', app()->getLocale()) }}"><i class=" icon-layers"></i><span>{{__('Transacciones')}}</span></a>
                         </li>
                         {{--
@@ -22,12 +22,10 @@
                             <a href="{{route('fondeos',  app()->getLocale())}}"><i class="icon-arrow-down"></i><span>
                             {{__('Fondeo')}}</span></a>
                         </li>
-
                         <li class="{{ (Route::is('retiros') ? 'active open' : '') }}"> 
                             <a href="{{route('retiros',  app()->getLocale())}}"><i class="icon-arrow-up"></i><span>
                             {{__('Retiros')}}</span></a>
                         </li>
-                         
                         @if(Auth::user()->role_id != 1)
                         <li class="{{ (Route::is('my_vouchers') ? 'active open' : '') }}">
                             <a href="{{url( app()->getLocale().'/')}}/my_vouchers"><i class="icon-speedometer"></i><span>
@@ -59,11 +57,11 @@
                                  <li><a href="{{route('myclosed',  app()->getLocale())}}" class=" waves-effect waves-block">{{__('Mis cambios completados')}}</a></li>
                             </ul>
                         </li>
+                        {{--
                         <li class="{{ (Route::is('mymerchants') ? 'active open' : '') }}">
                             <a href="{{ route('mymerchants',  app()->getLocale()) }}"><i class="icon-speedometer"></i><span>
                             {{__('Integraciones')}}</span></a>
                         </li>
-                        {{--
                         <li><a href="javascript:void(0);" class="menu-toggle"><i class="icon-grid"></i><span>App</span></a>
                             <ul class="ml-menu">
                                 <li><a href="mail-inbox.html">{{__('Bandeja')}}</a></li>

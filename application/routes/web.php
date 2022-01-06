@@ -71,6 +71,7 @@ Route::group(['prefix' => '{language}', 'middleware' => ['setLanguage']],functio
 		Route::post('otp', 'SignUpController@postOtp')->middleware('auth');
 
 		Route::get('/home', 'HomeController@index')->name('home')->middleware('auth');
+		Route::get('/transacciones', 'HomeController@transacciones')->name('transacciones')->middleware('auth'); // Radas
 
 		// -------------------------------------------------------------------------------
 

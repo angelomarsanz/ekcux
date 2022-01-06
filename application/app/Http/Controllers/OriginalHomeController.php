@@ -108,19 +108,5 @@ class HomeController extends Controller
         ->with('toEscrows', $toEscrows)
         ->with('transactions_to_confirm', $transactionsToConfirm);
     }
-    public function transacciones()
-    {
-        if (!Auth::user()->verified) {
-            return view('otp.index');
-        }
-        $has_wallet = $username = Auth::user()->currentWallet()->accont_identifier_mechanism_value ?? null ; 
-        if(is_null($has_wallet)){
-            return redirect(route('show.currencies', app()->getLocale()));
-        }
-
-        $fondeo = Auth::user()->RecentActivity()->with('Status')->orderby('id','desc')->where('transaction_state_id', '!=', 3)->where('activity_title', 'Fondeo')->paginate(10);      
-
-        return view('home.transacciones')
-        ->with('fondeo', $fondeo);
-    }
 }
+ 

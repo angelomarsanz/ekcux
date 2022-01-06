@@ -40,6 +40,7 @@ class WalletController extends Controller
     }
 
     public function showCurrencies(Request $request, $lang){
+        // Redas Inicio
         if (Auth::check()) {
             $currencies = Currency::whereNotIn('id', [13, 14, 15, 18])->paginate(10);
             if(count($currencies) <= 0){
@@ -47,7 +48,7 @@ class WalletController extends Controller
             }
             return  view('wallet.currencies')->with('currencies', $currencies);
         }
-
+        // Redas Fin
         return redirect(app()->getLocale().'/');
     }
 
@@ -95,7 +96,14 @@ class WalletController extends Controller
 
             $billeterasUsuario = Wallet::with('TransferMethods')->where('user_id', Auth::user()->id)->whereNotIn('transfer_method_id', [12, 17, 18])->paginate('10');
 
-        	return view('fondeos.metodos_fondeo')->with('billeterasUsuario', $billeterasUsuario);
+            if(count($billeterasUsuario) > 0)
+            {
+                return view('fondeos.metodos_fondeo')->with('billeterasUsuario', $billeterasUsuario);
+            }
+            else
+            {
+                return redirect(route('show.currencies', app()->getLocale()));
+            }
         }
         return redirect(app()->getLocale().'/');
     }

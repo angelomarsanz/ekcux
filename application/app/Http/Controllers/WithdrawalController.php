@@ -307,7 +307,9 @@ class WithdrawalController extends Controller
         $retiro = Withdrawal::where(
             [
                 ['user_id', Auth::user()->id],
-                ['gross', $request->monto_retiro,],
+                ['gross', $request->monto_retiro],
+                ['fee',	$comisionesRetiro],
+                ['net', $request->neto_a_recibir],
                 ['platform_id', $billetera->accont_identifier_mechanism_value],
                 ['wallet_id', Auth::user()->wallet_id],
                 ['send_to_platform_name', $transferMethod->name],

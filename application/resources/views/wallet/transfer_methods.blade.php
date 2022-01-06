@@ -23,9 +23,11 @@
                         <div class="row">
                             <div class="col">
                                <ul id="glbreadcrumbs-two">
-                                    <li><a href="#" class="a"><strong>1.</strong> Select your wallet currency.</a></li>     
-                                    <li><a href="#" ><strong>2.</strong> Add a money transfer method to your wallet.</a></li>
-                                    <li><a href="#" class="a"><strong>3.</strong> Finish your wallet creation.</a></li>
+                                    <!-- Redas Inicio -->
+                                    <li><a href="#" class="a"><strong>1.</strong> Seleccione la moneda.</a></li>     
+                                    <li><a href="#" ><strong>2.</strong> Agregue el método de pago.</a></li>
+                                    <li><a href="#" class="a"><strong>3.</strong> Finalice la creación del método de pago.</a></li>
+                                    <!-- Redas Fin -->
                                 </ul>
                             </div>            
                           

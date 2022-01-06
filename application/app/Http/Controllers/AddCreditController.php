@@ -184,6 +184,37 @@ class AddCreditController extends Controller
             'unique_transaction_id' => '',
     	]);
 
+        $fondeo = Deposit::where(
+            [
+                ['user_id', Auth::user()->id],
+                ['wallet_id', Auth::user()->wallet_id],
+                ['currency_id', $transferMethod->currency_id],
+                ['gross', $request->monto_fondeo],
+                ['fee',	$comisionesFondeo],
+                ['net',	$request->neto_a_recibir_e_usd],
+                ['transfer_method_id', $transferMethod->id],
+            ])
+            ->orderby('id', 'desc')
+            ->first();
+
+        $billeteraEkcux = Wallet::findOrFail(Auth::user()->wallet_id); 
+
+        Auth::user()->RecentActivity()->save($fondeo->Transactions()->create([
+            'user_id'               =>  Auth::user()->id,
+            'entity_id'             =>  Auth::user()->id,
+            'entity_name'           =>  $transferMethod->name,
+            'transaction_state_id'  =>  3,
+            'money_flow'            => '+',
+            'activity_title'        =>  'Fondeo',
+            'balance'               =>  $billeteraEkcux->fiat,
+            'thumb'                 =>  $transferMethod->thumbnail,
+            'gross'                 =>  $request->monto_fondeo,
+            'fee'                   =>  $comisionesFondeo,
+            'net'                   =>  $request->neto_a_recibir_e_usd,
+            'currency_id'           =>  $transferMethod->currency_id,
+            'currency_symbol'       =>  $transferMethod->currency->symbol,
+        ]));
+
         Mail::send(new depositRequestUserEmail( $depositRequest, Auth::user()));
 
     	flash('Su depósito está en espera', 'info');
