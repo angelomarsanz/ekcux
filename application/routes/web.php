@@ -71,7 +71,6 @@ Route::group(['prefix' => '{language}', 'middleware' => ['setLanguage']],functio
 		Route::post('otp', 'SignUpController@postOtp')->middleware('auth');
 
 		Route::get('/home', 'HomeController@index')->name('home')->middleware('auth');
-		Route::get('/transacciones', 'HomeController@transacciones')->name('transacciones')->middleware('auth'); // Radas
 
 		// -------------------------------------------------------------------------------
 
@@ -140,20 +139,32 @@ Route::group(['prefix' => '{language}', 'middleware' => ['setLanguage']],functio
 		Route::get('/deposit', 'AddCreditController@depositMethods')->name('deposit.credit')->middleware('auth');
 		Route::get('/deposit/{wallet_id}', 'AddCreditController@depositByWallet')->name('deposit.transfer.form')->middleware('auth');
 
+		Route::get('/fondeos','AddCreditController@fondeos')->name('fondeos')->middleware('auth'); // Redas
+
 		Route::get('/agregarFondeo/{wallet_id}', 'AddCreditController@agregarFondeo')->name('fondeos.agregarFondeo.form')->middleware('auth'); // Redas 		
 		
+		Route::get('/agregarPagoFondeo/{id}', 'AddCreditController@agregarPagoFondeo')->name('fondeos.agregarPagoFondeo')->middleware('auth'); // Redas
+
 		Route::post('/addcredit', 'AddCreditController@depositRequest')->name('post.credit')->middleware('auth'); 
 
 		Route::post('/calcularFondeo', 'AddCreditController@calcularFondeo')->name('post.calcularFondeo')->middleware('auth'); // Redas
 
 		Route::post('/confirmarFondeo', 'AddCreditController@confirmarFondeo')->name('post.confirmarFondeo')->middleware('auth'); // Redas
 
+		Route::post('/aceptarFondeo', 'AddCreditController@aceptarFondeo')->name('post.aceptarFondeo')->middleware('auth');
+
+		Route::post('/guardarPagoFondeo', 'AddCreditController@guardarPagoFondeo')->name('post.guardarPagoFondeo')->middleware('auth');
+
+		Route::post('/confirmarTransferenciaFondeo', 'AddCreditController@confirmarTransferenciaFondeo')->name('post.confirmarTransferenciaFondeo')->middleware('auth'); // Redas
+
 		/*	DEPOSITS ROUTES	*/
 		Route::get('/mydeposits','DepositController@myDeposits')->name('mydeposits')->middleware('auth');
 
-		Route::get('/fondeos','DepositController@fondeos')->name('fondeos')->middleware('auth'); // Redas
-
 		Route::put('/confirm/deposit','DepositController@confirmDeposit')->name('confirm.deposit')->middleware('auth');
+
+		/* Solicitudes */
+
+		Route::get('/solicitudes/{tipo}', 'HomeController@solicitudes')->name('solicitudes')->middleware('auth'); // Redas
 
 		/* WITHDRAWAL ROUTES */
 
@@ -164,11 +175,19 @@ Route::group(['prefix' => '{language}', 'middleware' => ['setLanguage']],functio
 		Route::put('/confirm/withdrawal','WithdrawalController@confirmWithdrawal')->name('confirm.withdrawal')->middleware('auth');
 
 		route::get('/retiros', 'WithdrawalController@retiros')->name('retiros')->middleware('auth'); // Redas 
-		Route::get('/agregarRetiro/{wallet_id}', 'WithdrawalController@agregarRetiro')->name('retiros.agregarRetiro.form')->middleware('auth'); // Redas 		
+		Route::get('/agregarRetiro/{wallet_id}', 'WithdrawalController@agregarRetiro')->name('retiros.agregarRetiro.form')->middleware('auth'); // Redas 	
+		
+		Route::get('/agregarPagoRetiro/{id}', 'WithdrawalController@agregarPagoRetiro')->name('retiros.agregarPagoRetiro')->middleware('auth'); // Redas
 
 		Route::post('/calcularRetiro', 'WithdrawalController@calcularRetiro')->name('post.calcularRetiro')->middleware('auth'); // Redas
 
 		Route::post('/confirmarRetiro', 'WithdrawalController@confirmarRetiro')->name('post.confirmarRetiro')->middleware('auth'); // Redas
+
+		Route::post('/aceptarRetiro', 'WithdrawalController@aceptarRetiro')->name('post.aceptarRetiro')->middleware('auth');
+
+		Route::post('/guardarPagoRetiro', 'WithdrawalController@guardarPagoRetiro')->name('post.guardarPagoRetiro')->middleware('auth');
+
+		Route::post('/confirmarTransferenciaRetiro', 'WithdrawalController@confirmarTransferenciaRetiro')->name('post.confirmarTransferenciaRetiro')->middleware('auth'); // Redas
 
 		/* EXCHANGE ROUTES */
 		route::get('/exchange/first/{first_id?}/second/{second_id?}', 'ExchangeController@getExchangeRequestForm')->name('exchange.form')->middleware('auth');
@@ -280,6 +299,10 @@ Route::group(['prefix' => '{language}', 'middleware' => ['setLanguage']],functio
 		route::get('demo/admin', 'DemoController@admin')->name('demoadmin');
 
 		route::get('/me/{user_name}', 'ProfileController@me');
+
+		// RUTAS DE NOTIFICACIONES
+
+		Route::post('actualizarNotificaciones','NotificacionController@actualizarNotificaciones');
 
 });
 

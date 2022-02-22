@@ -9,11 +9,16 @@ use Twilio;
 use App\Models\Otp;
 use App\Models\Wallet;
 use App\Models\Receive;
-use App\Models\Transactions;
+use App\Models\Transaction;
 use App\Models\Currrency;
+use App\Models\Deposit;
+use App\Models\Withdrawal;
+use App\Models\Notificacion;
 use Illuminate\Http\Request;
 use TCG\Voyager\Models\Page;
 use Jenssegers\Agent\Agent;
+use App\Http\Controllers\NotificacionController;
+
 
 
 class HomeController extends Controller
@@ -69,9 +74,7 @@ class HomeController extends Controller
      * @return \Illuminate\Http\Response
      */
     public function index()
-    {
-
-               
+    {              
         $agent = new Agent();
 
         // Twilio::message('+258850586897', array(
@@ -101,14 +104,20 @@ class HomeController extends Controller
         //     ->with('transactions', $transactions)
         //     ->with('transactions_to_confirm', $transactionsToConfirm);
         // }
+
+        $notificacion = new NotificacionController();
+
+        $vectorNotificaciones = $notificacion->index();
+
         return view('home.index')
         ->with('myRequests', $myMoneyRequests)
         ->with('transactions', $transactions)
         ->with('myEscrows', $myEscrows)
         ->with('toEscrows', $toEscrows)
-        ->with('transactions_to_confirm', $transactionsToConfirm);
+        ->with('transactions_to_confirm', $transactionsToConfirm)
+        ->with('vectorNotificaciones', $vectorNotificaciones);
     }
-    public function transacciones()
+    public function solicitudes($lang, $tipoSolicitud)
     {
         if (!Auth::user()->verified) {
             return view('otp.index');
@@ -118,9 +127,24 @@ class HomeController extends Controller
             return redirect(route('show.currencies', app()->getLocale()));
         }
 
-        $fondeo = Auth::user()->RecentActivity()->with('Status')->orderby('id','desc')->where('transaction_state_id', '!=', 3)->where('activity_title', 'Fondeo')->paginate(10);      
+        $fondeos = Transaction::with(['Status', 'User'])->orderby('id','desc')->where('transaction_state_id', 3)->where('activity_title', 'Fondeo')->where('user_id', '!=', Auth::user()->id)->paginate(10);
+        
+        $retiros = Transaction::with(['Status', 'User'])->orderby('id','desc')->where('transaction_state_id', 3)->where('activity_title', 'Retiro')->where('user_id', '!=', Auth::user()->id)->paginate(10);      
 
-        return view('home.transacciones')
-        ->with('fondeo', $fondeo);
+        $fondeos_aceptados = Transaction::with(['Status', 'User'])->orderby('id','desc')->where('usuario_aceptante_id', Auth::user()->id)->whereIn('transaction_state_id', [1, 4, 6])->where('activity_title', 'Fondeo')->paginate(10);      
+
+        $retiros_aceptados = Transaction::with(['Status', 'User'])->orderby('id','desc')->where('usuario_aceptante_id', Auth::user()->id)->whereIn('transaction_state_id', [1, 5, 6])->where('activity_title', 'Retiro')->paginate(10);      
+
+        $notificacion = new NotificacionController();
+
+        $vectorNotificaciones = $notificacion->index();
+
+        return view('home.solicitudes')
+        ->with('fondeos', $fondeos)
+        ->with('retiros', $retiros)
+        ->with('fondeos_aceptados', $fondeos_aceptados)
+        ->with('retiros_aceptados', $retiros_aceptados)
+        ->with('tipoSolicitud', $tipoSolicitud)
+        ->with('vectorNotificaciones', $vectorNotificaciones);
     }
 }

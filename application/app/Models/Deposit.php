@@ -7,7 +7,24 @@ use Illuminate\Database\Eloquent\Model;
 class Deposit extends Model
 {
 	//protected $with =	['Method','Status'];
-    protected $fillable = ['user_id', 'transaction_state_id', 'transaction_receipt', 'deposit_method_id', 'gross', 'fee', 'net', 'json_data', 'wallet_id', 'currency_id', 'currency_symbol','message','transfer_method_id', 'unique_transaction_id'];
+    protected $fillable = 
+        [
+            'user_id', 
+            'transaction_state_id', 
+            'deposit_method_id', 
+            'gross', 
+            'fee', 
+            'net', 
+            'transaction_receipt', 
+            'json_data', 
+            'currency_id', 
+            'currency_symbol', 
+            'wallet_id', 
+            'message', 
+            'transfer_method_id', 
+            'unique_transaction_id', 
+            'contrapartida_id'
+        ];
 
     public function Transactions(){
         return $this->morphMany('App\Models\Transaction', 'Transactionable');

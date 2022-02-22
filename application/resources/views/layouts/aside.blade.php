@@ -17,7 +17,11 @@
                             <a href="{{url(app()->getLocale().'/')}}/exchange/first/0/second/0"><i class="icon-refresh"></i><span>{{__('Intercambio')}}</span></a>
                         </li>
                         --}}
-                        <!-- Radas - Inicio -->
+                        <!-- Redas - Inicio -->
+                        <li class="{{ (Route::is('solicitudes') ? 'active open' : '') }}">
+                            <a href="{{ url('/') }}/{{app()->getLocale()}}{{ '/solicitudes/fondeos' }}" class="solicitudes">><i class="icon-arrow-down"></i><span>
+                            {{__('Solicitudes')}}</span></a>
+                        </li>
                         <li class="{{ (Route::is('fondeos') ? 'active open' : '') }}">
                             <a href="{{route('fondeos',  app()->getLocale())}}"><i class="icon-arrow-down"></i><span>
                             {{__('Fondeo')}}</span></a>
@@ -32,7 +36,7 @@
                             {{__('Cupones')}}</span></a>
                         </li>
                         @endif
-                        <!-- Radas - Fin -->
+                        <!-- Redas - Fin -->
                         <li class="{{ (Route::is('sendMoneyForm') ? 'active open' : '') }}">
                             <a href="{{route('sendMoneyForm', app()->getLocale())}}"><i class="icon-arrow-right"></i><span>{{__('Enviar')}}</span></a>
                         </li>

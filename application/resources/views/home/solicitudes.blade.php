@@ -6,8 +6,9 @@
         @include('partials.sidebar')
 		
 		<div class="col-md-9 " >
-	        
-	        @include('home.partials.transacciones')
+			@include('partials.flash')
+        
+	        @include('home.partials.solicitudes')
 
     	</div>
 

@@ -12,6 +12,9 @@ use App\Models\Wallet;
 use App\Models\Currency;
 use App\Models\Transaction;
 use Illuminate\Http\Request;
+use Carbon\Carbon;
+use App\Models\Notificacion;
+use App\Http\Controllers\NotificacionController;
 
 class DepositController extends Controller
 {
@@ -93,14 +96,4 @@ class DepositController extends Controller
     	return redirect(url('/').'/admin/dashboard/deposits/'.$deposit->id);
 
     }
-    // Radas - inicio 
-    public function fondeos(Request $request, $lang){
-        if(Auth::user()->currentWallet() == null){
-            return redirect(route('show.currencies', app()->getLocale()));
-        }
-    	$deposits = Deposit::with(['transferMethod','Status'])->where('user_id', Auth::user()->id)->orderby('created_at', 'desc')->paginate(10);
-    	return view('fondeos.index')
-    	->with('deposits', $deposits);
-    }
-    // Radas - fin
 }

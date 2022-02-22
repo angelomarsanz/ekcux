@@ -14,22 +14,27 @@ class Transaction extends Model
     
     protected $fillable = [
         'user_id',
+        'request_id',
+        'transactionable_id',
+        'transactionable_type',
         'entity_id',
         'entity_name',
-        'thumb',
+        'transaction_state_id',
         'currency',
-        'balance',
         'activity_title',
         'money_flow',
-        'transaction_state_id',
-        'request_id',
         'gross',
         'fee',
         'net',
+        'balance',
         'json_data',
-        'currency_id',
-        'is_cripto',
-        'currency_symbol'];
+        'currency_symbol',
+        'thumb',
+        'currency_id',               
+        'usuario_aceptante_id',
+        'fecha_hora_aceptacion',
+        'datos_para_transaccion'
+    ];
 
 
     public function Transactionable(){

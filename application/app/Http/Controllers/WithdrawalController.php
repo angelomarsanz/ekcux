@@ -14,8 +14,13 @@ use App\Models\Transaction;
 use App\Models\Currency;
 use App\Models\Wallet;
 use App\Models\Withdrawal;
+use App\Models\Deposit;
 use Illuminate\Http\Request;
 use App\Models\WithdrawalMethod;
+use Carbon\Carbon;
+use App\Models\Notificacion;
+use App\Http\Controllers\NotificacionController;
+use Illuminate\Support\Facades\Storage;
 
 class WithdrawalController extends Controller
 {
@@ -214,14 +219,20 @@ class WithdrawalController extends Controller
         return redirect(url('/').'/admin/dashboard/withdrawals/'.$withdrawal->id);
         
     }
-    // Radas - Inicio
+    // Redas - Inicio
     public function retiros(Request $request, $lang){
         if(Auth::user()->currentWallet() == null){
             return redirect(route('show.currencies', app()->getLocale()));
         }
     	$retiros = Withdrawal::with(['transferMethod','Status'])->where('user_id', Auth::user()->id)->orderby('id', 'desc')->paginate(10);
+
+        $notificacion = new NotificacionController();
+
+        $vectorNotificaciones = $notificacion->index();
+
     	return view('retiros.index')
-    	->with('retiros', $retiros);
+    	->with('retiros', $retiros)
+        ->with('vectorNotificaciones', $vectorNotificaciones);
     }
 
     public function agregarRetiro(Request $request, $lang, $id){
@@ -290,7 +301,7 @@ class WithdrawalController extends Controller
     	$retiroRequest = Withdrawal::create([
     		'user_id'	            =>  Auth::user()->id,
     		'transaction_state_id'	=>	3,
-            'withdrawal_method_id'  =>  1,
+            'withdrawal_method_id'  =>  8,
     		'gross'	                =>	$request->monto_retiro,
     		'fee'	                =>	$comisionesRetiro,
     		'net'	                =>	$request->neto_a_recibir,
@@ -319,22 +330,25 @@ class WithdrawalController extends Controller
             ->orderby('id', 'desc')
             ->first();
 
+        $datosParaTransaccion = 'Monto: '.$retiro->currency_symbol.' '.number_format($retiro->net, 2,",", ".").'. Nro. de cuenta '.$retiro->platform_id.' Entidad financiera '. $retiro->send_to_platform_name;
+
         $billeteraEkcux = Wallet::findOrFail(Auth::user()->wallet_id); 
 
         Auth::user()->RecentActivity()->save($retiro->Transactions()->create([
-            'user_id'               =>  Auth::user()->id,
-            'entity_id'             =>  Auth::user()->id,
-            'entity_name'           =>  $transferMethod->name,
-            'transaction_state_id'  =>  3,
-            'money_flow'            => '-',
-            'activity_title'        =>  'Retiro',
-            'balance'               =>  $billeteraEkcux->fiat,
-            'thumb'                 =>  $transferMethod->thumbnail,
-            'gross'                 =>  $request->monto_retiro,
-            'fee'                   =>  $comisionesRetiro,
-            'net'                   =>  $request->neto_a_recibir,
-            'currency_id'           =>  $transferMethod->currency_id,
-            'currency_symbol'       =>  $transferMethod->currency->symbol,
+            'user_id'                   =>  Auth::user()->id,
+            'entity_id'                 =>  $transferMethod->id,
+            'entity_name'               =>  $transferMethod->name,
+            'transaction_state_id'      =>  3,
+            'money_flow'                => '-',
+            'activity_title'            =>  'Retiro',
+            'balance'                   =>  $billeteraEkcux->fiat,
+            'thumb'                     =>  $transferMethod->thumbnail,
+            'gross'                     =>  $request->monto_retiro,
+            'fee'                       =>  $comisionesRetiro,
+            'net'                       =>  $request->neto_a_recibir,
+            'currency_id'               =>  $transferMethod->currency_id,
+            'currency_symbol'           =>  $transferMethod->currency->symbol,
+            'datos_para_transaccion'    =>  $datosParaTransaccion
         ]));
 
         $billeteraEkcux = Wallet::findOrFail(Auth::user()->wallet_id); 
@@ -348,5 +362,168 @@ class WithdrawalController extends Controller
     	return  redirect(route('retiros', app()->getLocale()));
     }
 
-    // Radas - Fin
+    public function aceptarRetiro(Request $request, $lang)
+    {
+        $this->validate($request, [
+            'tid'   => 'required|numeric',
+        ]);
+
+        $transaction = Transaction::find($request->tid);
+        $retiro = Withdrawal::find($transaction->transactionable_id);
+
+        $billetera = Wallet::where('user_id', Auth::user()->id)->where('transfer_method_id', $transaction->entity_id)->first();
+
+        if ($billetera != null):
+
+            $fondeoRetiro = Deposit::create([
+                'user_id'	=>	Auth::user()->id,
+                'wallet_id' =>  Auth::user()->wallet_id,
+                'currency_id'   => $retiro->currency_id,
+                'currency_symbol'   => $retiro->currency_symbol,
+                'transaction_state_id'	=>	5,
+                'deposit_method_id'	=>	9,
+                'gross'	=>	$transaction->gross,
+                'fee'	=>	$transaction->fee,
+                'net'	=>	$transaction->net,
+                'message'   =>  '',
+                'transaction_receipt'	=>	'',
+                'json_data'	=>	'',
+                'transfer_method_id' => $retiro->transfer_method_id,
+                'unique_transaction_id' => ''
+            ]);
+
+            $idFondeoCreado = $fondeoRetiro->id;
+        
+            $transaction->transaction_state_id = 5;
+            $transaction->usuario_aceptante_id = Auth::user()->id;
+            $transaction->fecha_hora_aceptacion = Carbon::now();
+            $transaction->save();
+
+            $retiro->transaction_state_id = 5;
+            $retiro->contrapartida_id = $idFondeoCreado;
+            $retiro->save();
+
+            $notificacion = 'Retiro aceptado por '. Auth::user()->name.'. Espera una transferencia por un monto de '.$retiro->currency_symbol.' '.number_format($retiro->net, 2, ",", ".").' en la cuenta Nro. '.$retiro->platform_id.' de la entidad financiera '. $retiro->send_to_platform_name;
+            
+            Notificacion::create(
+                [
+                    'user_id'	            =>  $transaction->user_id,
+                    'notificacion'	        =>	$notificacion,
+                    'estatus_notificacion'  =>  'Creada'
+                ]);
+
+            flash(__('Retiro aceptado: Debes transferir '.$retiro->currency_symbol.' '.number_format($retiro->net, 2, ",", ".").' a la cuenta Nro. '.$retiro->platform_id.' de la entidad financiera '. $retiro->send_to_platform_name), 'success');
+        else:
+            flash(__('Usted no tiene una cuenta registrada de la entidad financiera '.$retiro->send_to_platform_name), 'danger');
+        endif;
+
+        return redirect(app()->getLocale().'/solicitudes/retiros-aceptados');
+    }
+    public function agregarPagoRetiro(Request $request, $lang, $idTransaccion)
+    {
+        $transaccion = Transaction::findOrFail($idTransaccion);
+        $retiro = Withdrawal::findOrFail($transaccion->transactionable_id);
+        return view('retiros.agregarPagoRetiro')
+            ->with('transaccion', $transaccion)
+            ->with('retiro', $retiro);;
+    }
+    public function guardarPagoRetiro( Request $request, $lang){
+
+    	$this->validate($request, [
+    		'deposit_screenshot'	=> 'required|mimes:jpg,png,jpeg',
+            'message'   =>  'required',
+            'unique_transaction_id'  =>  'required',
+            'transaccion_id'  =>  'required|exists:transactionable,id',
+            'retiro_id' =>  'required|exists:withdrawals,id',
+    	]);
+           
+        $transaccion = Transaction::findOrFail($request->transaccion_id);
+        $retiro = Withdrawal::findOrFail($request->retiro_id);
+        $deposito = Deposit::findOrFail($request->fondeo_id);
+
+    	if ( $request->hasFile('deposit_screenshot') ) {
+    		$file = $request->file('deposit_screenshot');
+    		$path = 'users/'.Auth::user()->name.'/retiros/'.preg_replace('/\s/', '', $file->getClientOriginalName());
+    		Storage::put($path, $file);
+
+    		$local_path = Storage::put($path, $file);
+
+    		$link = Storage::url($local_path);
+    	}
+
+        $transaccion->transaction_state_id = 6;
+        $transaccion->save();
+
+        $retiro->transaction_state_id = 6;
+        $retiro->json_data = '{"retiro_screenshot":"'.$path.'"}';
+        $retiro->unique_transaction_id = $request->unique_transaction_id;
+        $retiro->recibo_transferencia = $link;
+        $retiro->mensaje = $request->message;
+        $retiro->save();
+
+        $deposito->transaction_state_id = 6;
+        $deposito->message = $request->message;
+        $deposito->transaction_receipt = $link;
+        $deposito->json_data = '{"retiro_screenshot":"'.$path.'"}';
+        $deposito->unique_transaction_id = $request->unique_transaction_id;
+        $deposito->save();
+
+        $notificacion = 'Transferencia realizada en su cuenta bancaria identificada con el Nro. '.$request->unique_transaction_id;
+        
+        Notificacion::create(
+            [
+    		    'user_id'	            =>  $transaccion->user_id,
+    		    'notificacion'	        =>	$notificacion,
+                'estatus_notificacion'  =>  'Creada'
+            ]);
+
+    	flash('Su pago está en espera de confirmación', 'info');
+
+    	return redirect(app()->getLocale().'/solicitudes/retiros-aceptados');
+    }
+    public function confirmarTransferenciaRetiro(Request $request, $lang)
+    {
+        $this->validate($request, [
+            'rid'   => 'required|numeric',
+        ]);
+
+        $retiro = Withdrawal::find($request->rid);
+        $retiro->transaction_state_id = 1;
+        $retiro->save();
+
+        $transaction = Transaction::where('transactionable_id', $request->rid)->first();
+        $transaction->transaction_state_id = 1;
+        $transaction->save();
+
+        $deposit = Deposit::find($retiro->contrapartida_id);
+        $deposit->transaction_state_id = 1;
+        $deposit->save();
+        
+        $billeteraEkcux = Wallet::find($deposit->wallet_id);
+        $billeteraEkcux->fiat = $billeteraEkcux->fiat + $deposit->gross;
+        $billeteraEkcux->save();
+        
+        $notificacion = 'Confirmado recibo de fondos según comprobante Nro. '. $deposit->unique_transaction_id;
+       
+        Notificacion::create(
+            [
+    		    'user_id'	            =>  $transaction->usuario_aceptante_id,
+    		    'notificacion'	        =>	$notificacion,
+                'estatus_notificacion'  =>  'Creada'
+            ]);
+
+        $notificacion = 'Se abonó a su cuenta E-USD: '.number_format($deposit->gross, 2, ",", ".");
+    
+        Notificacion::create(
+            [
+                'user_id'	            =>  $transaction->usuario_aceptante_id,
+                'notificacion'	        =>	$notificacion,
+                'estatus_notificacion'  =>  'Creada'
+            ]);
+
+        flash(__('Transferencia confirmada'), 'success');
+
+        return redirect(app()->getLocale().'/retiros');
+    }
+    // Redas - fin
 }

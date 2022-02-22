@@ -11,9 +11,12 @@ use App\Models\Wallet;
 use App\Models\Currency;
 use App\Models\DepositMethod;
 use App\Models\TransferMethod;
+use App\Models\Transaction;
+use App\Models\Notificacion;
+use App\Models\Withdrawal;
 use Illuminate\Http\Request;
 use Illuminate\Support\Facades\Storage;
-
+use Carbon\Carbon;
 
 class AddCreditController extends Controller
 {
@@ -117,7 +120,24 @@ class AddCreditController extends Controller
     	return  redirect(route('mydeposits', app()->getLocale()));
 
     }
-    // Radas - Inicio
+    // Redas - Inicio
+    public function fondeos(Request $request, $lang){
+        if(Auth::user()->currentWallet() == null){
+            return redirect(route('show.currencies', app()->getLocale()));
+        }
+    	$deposits = Deposit::with(['transferMethod','Status'])->where('user_id', Auth::user()->id)->where('deposit_method_id', 9)->orderby('created_at', 'desc')->paginate(10);
+
+        $transacciones = Transaction::where('user_id', Auth::user()->id)->where('activity_title', 'Fondeo')->get();
+
+        $notificacion = new NotificacionController();
+
+        $vectorNotificaciones = $notificacion->index();
+
+    	return view('fondeos.index')
+    	->with('deposits', $deposits)
+        ->with('transacciones', $transacciones)
+        ->with('vectorNotificaciones', $vectorNotificaciones);
+    }
     public function agregarFondeo(Request $request, $lang, $id){
 
         $billetera = Wallet::findOrFail($id);       
@@ -125,8 +145,6 @@ class AddCreditController extends Controller
         return view('fondeos.agregarFondeo')
         ->with('billetera', $billetera);
     }
-    // Radas - Fin
-
     public function calcularFondeo( Request $request, $laang){
          
         $billeteraEkcux = Wallet::findOrFail(Auth::user()->wallet_id); 
@@ -173,7 +191,7 @@ class AddCreditController extends Controller
             'currency_id'   => $transferMethod->currency_id,
             'currency_symbol'   => $transferMethod->currency->symbol,
     		'transaction_state_id'	=>	3,
-    		'deposit_method_id'	=>	1,
+    		'deposit_method_id'	=>	9,
     		'gross'	=>	$request->monto_fondeo,
     		'fee'	=>	$comisionesFondeo,
     		'net'	=>	$request->neto_a_recibir_e_usd,
@@ -181,7 +199,7 @@ class AddCreditController extends Controller
     		'transaction_receipt'	=>	'',
     		'json_data'	=>	'',
             'transfer_method_id' => $transferMethod->id,
-            'unique_transaction_id' => '',
+            'unique_transaction_id' => ''
     	]);
 
         $fondeo = Deposit::where(
@@ -201,7 +219,7 @@ class AddCreditController extends Controller
 
         Auth::user()->RecentActivity()->save($fondeo->Transactions()->create([
             'user_id'               =>  Auth::user()->id,
-            'entity_id'             =>  Auth::user()->id,
+            'entity_id'             =>  $transferMethod->id,
             'entity_name'           =>  $transferMethod->name,
             'transaction_state_id'  =>  3,
             'money_flow'            => '+',
@@ -221,4 +239,194 @@ class AddCreditController extends Controller
 
     	return  redirect(route('fondeos', app()->getLocale()));
     }
+    public function aceptarFondeo(Request $request, $lang)
+    {
+        $this->validate($request, [
+            'tid'   => 'required|numeric',
+        ]);
+
+        $transaction = Transaction::find($request->tid);
+        $deposit = Deposit::find($transaction->transactionable_id);
+
+        $billeteraEkcux = Wallet::findOrFail(Auth::user()->wallet_id); 
+        $billetera = Wallet::where('user_id', Auth::user()->id)->where('transfer_method_id', $transaction->entity_id)->first();
+        $montoTotalEUsd = round($transaction->fee + $transaction->net, 2);
+
+        if ($billeteraEkcux->fiat >= $montoTotalEUsd):
+            if ($billetera != null):
+
+                $retiroFondeo = Withdrawal::create([
+                    'user_id'	            =>  Auth::user()->id,
+                    'transaction_state_id'	=>	4,
+                    'withdrawal_method_id'  =>  8,
+                    'gross'	                =>	$transaction->gross,
+                    'fee'	                =>	$transaction->fee,
+                    'net'	                =>	$transaction->net,
+                    'platform_id'           =>  $billetera->accont_identifier_mechanism_value,
+                    'json_data'	            =>	'',
+                    'currency_symbol'       =>  $deposit->currency_symbol,
+                    'wallet_id'             =>  Auth::user()->wallet_id,
+                    'send_to_platform_name' =>  $transaction->entity_name,
+                    'currency_id'           =>  $deposit->currency_id,
+                    'transfer_method_id'    =>  $deposit->transfer_method_id,
+                    'unique_transaction_id' =>  '',
+                    'contrapartida_id'      =>  $deposit->id
+                ]);
+        
+                $retiroCreado = Withdrawal::where(
+                    [
+                        ['user_id', Auth::user()->id],
+                        ['gross', $transaction->gross],
+                        ['fee',	$transaction->fee],
+                        ['net', $transaction->net],
+                        ['platform_id', $billetera->accont_identifier_mechanism_value],
+                        ['wallet_id', Auth::user()->wallet_id],
+                        ['send_to_platform_name', $transaction->entity_name],
+                        ['currency_id', $deposit->currency_id],
+                        ['transfer_method_id', $deposit->transfer_method_id],
+                    ])
+                    ->orderby('id', 'desc')
+                    ->first();
+
+                $billeteraEkcux->fiat = $billeteraEkcux->fiat - $montoTotalEUsd;
+                $billeteraEkcux->save();    
+            
+                $datosParaTransaccion = 'Monto: '.$transaction->currency_symbol.' '.number_format($transaction->gross, 2, ",", ".").'. Nro. de cuenta '.$billetera->accont_identifier_mechanism_value.' Entidad financiera '. $transaction->entity_name;
+
+                $transaction->transaction_state_id = 4;
+                $transaction->usuario_aceptante_id = Auth::user()->id;
+                $transaction->fecha_hora_aceptacion = Carbon::now();
+                $transaction->datos_para_transaccion = $datosParaTransaccion;
+                $transaction->save();
+
+                $deposit->transaction_state_id = 4;
+                $deposit->contrapartida_id = $retiroCreado->id;
+                $deposit->save();
+
+                $notificacion = 'Fondeo aceptado por '. Auth::user()->name.'. Debes realizar un depósito o transferencia por un monto de '.$transaction->currency_symbol.' '.number_format($transaction->gross, 2, ",", ".").' en la cuenta Nro. '.$billetera->accont_identifier_mechanism_value.' de la entidad financiera '. $transaction->entity_name;
+                
+                Notificacion::create(
+                    [
+                        'user_id'	            =>  $transaction->user_id,
+                        'notificacion'	        =>	$notificacion,
+                        'estatus_notificacion'  =>  'Creada'
+                    ]);
+
+                flash(__('Fondeo aceptado'), 'success');
+            else:
+                flash(__('Usted no tiene una cuenta registrada de la entidad financiera '.$transaction->entity_name), 'danger');
+            endif;
+        else:
+            flash(__('Usted no tiene suficiente saldo en su billetera para aceptar el fondeo de E-USD '. number_format($montoTotalEUsd, 2, ",", ".")) , 'danger');
+        endif;
+
+        return redirect(app()->getLocale().'/solicitudes/fondeos-aceptados');
+    }
+    public function agregarPagoFondeo(Request $request, $lang, $idTransaccion)
+    {
+        $transaccion = Transaction::findOrFail($idTransaccion);
+        $fondeo = Deposit::findOrFail($transaccion->transactionable_id);
+        return view('fondeos.agregarPagoFondeo')
+            ->with('transaccion', $transaccion)
+            ->with('fondeo', $fondeo);;
+    }
+    public function guardarPagoFondeo( Request $request, $lang){
+
+    	$this->validate($request, [
+    		'deposit_screenshot'	=> 'required|mimes:jpg,png,jpeg',
+            'message'   =>  'required',
+            'unique_transaction_id'  =>  'required',
+            'transaccion_id'  =>  'required|exists:transactionable,id',
+            'fondeo_id' =>  'required|exists:deposits,id',
+    	]);
+           
+        $transaccion = Transaction::findOrFail($request->transaccion_id);
+        $deposito = Deposit::findOrFail($request->fondeo_id);
+        $retiro = Withdrawal::findOrFail($request->retiro_id);
+
+    	if ( $request->hasFile('deposit_screenshot') ) {
+    		$file = $request->file('deposit_screenshot');
+    		$path = 'users/'.Auth::user()->name.'/fondeos/'.preg_replace('/\s/', '', $file->getClientOriginalName());
+    		Storage::put($path, $file);
+
+    		$local_path = Storage::put($path, $file);
+
+    		$link = Storage::url($local_path);
+    	}
+
+        $transaccion->transaction_state_id = 6;
+        $transaccion->save();
+
+        $deposito->transaction_state_id = 6;
+        $deposito->message = $request->message;
+        $deposito->transaction_receipt = $link;
+        $deposito->json_data = '{"fondeo_screenshot":"'.$path.'"}';
+        $deposito->unique_transaction_id = $request->unique_transaction_id;
+        $deposito->save();
+
+        $retiro->transaction_state_id = 6;
+        $retiro->json_data = '{"fondeo_screenshot":"'.$path.'"}';
+        $retiro->unique_transaction_id = $request->unique_transaction_id;
+        $retiro->recibo_transferencia = $link;
+        $retiro->mensaje = $request->message;
+        $retiro->save();
+
+        $notificacion = 'Transferencia realizada en su cuenta bancaria identificada con el Nro. '.$request->unique_transaction_id;
+        
+        Notificacion::create(
+            [
+    		    'user_id'	            =>  $transaccion->usuario_aceptante_id,
+    		    'notificacion'	        =>	$notificacion,
+                'estatus_notificacion'  =>  'Creada'
+            ]);
+
+    	flash('Su pago está en espera de confirmación', 'info');
+
+    	return redirect(app()->getLocale().'/fondeos');
+    }
+    public function confirmarTransferenciaFondeo(Request $request, $lang)
+    {
+        $this->validate($request, [
+            'tid'   => 'required|numeric',
+        ]);
+
+        $transaction = Transaction::find($request->tid);
+        $transaction->transaction_state_id = 1;
+        $transaction->save();
+
+        $deposit = Deposit::find($transaction->transactionable_id);
+        $deposit->transaction_state_id = 1;
+        $deposit->save();
+
+        $retiro = Withdrawal::find($deposit->contrapartida_id);
+        $retiro->transaction_state_id = 1;
+        $retiro->save();
+        
+        $billeteraEkcux = Wallet::find($deposit->wallet_id);
+        $billeteraEkcux->fiat = $billeteraEkcux->fiat + $deposit->net;
+        $billeteraEkcux->save();
+        
+        $notificacion = 'Confirmado recibo de fondos según comprobante Nro. '. $deposit->unique_transaction_id;
+       
+        Notificacion::create(
+            [
+    		    'user_id'	            =>  $transaction->user_id,
+    		    'notificacion'	        =>	$notificacion,
+                'estatus_notificacion'  =>  'Creada'
+            ]);
+
+        $notificacion = 'Se abonó a su cuenta E-USD: '.number_format($deposit->net, 2, ",", ".");
+    
+        Notificacion::create(
+            [
+                'user_id'	            =>  $transaction->user_id,
+                'notificacion'	        =>	$notificacion,
+                'estatus_notificacion'  =>  'Creada'
+            ]);
+
+        flash(__('Transferencia confirmada'), 'success');
+
+        return redirect(app()->getLocale().'/solicitudes/fondeos-aceptados');
+    }
+    // Redas - fin
 }

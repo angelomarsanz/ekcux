@@ -5,5 +5,9 @@
 @elseif($deposit->Status->id == 3)
 <span class="badge badge-info">{{$deposit->Status->name}}</span>
 @elseif($deposit->Status->id == 4)
+<span class="badge badge-success">{{$deposit->Status->name}}</span>
+@elseif($deposit->Status->id == 5)
+<button class="badge badge-info">{{$deposit->Status->name}}</button>
+@elseif($deposit->Status->id == 6)
 <button class="btn btn-sm btn-outline-primary">{{$deposit->Status->name}}</button>
 @endif

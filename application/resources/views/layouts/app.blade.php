@@ -27,6 +27,7 @@
     <link rel="stylesheet" href="{{ asset('assets/css/main.css')}}">
     <link rel="stylesheet" href="{{ asset('assets/css/color_skins.css')}}">
     <link rel="stylesheet" href="{{ asset('assets/css/bootstrap-select.min.css')}}">
+    <link rel="stylesheet" href="{{ asset('assets/css/redas.css')}}{{ '?v=' }}{{ time() }}">
     
 
     <style type="text/css">
@@ -120,7 +121,11 @@
     <script src="{{ asset('assets/js/mainscripts.bundle.js')}}"></script>
     <script src="{{ asset('assets/js/infobox-1.js')}}"></script>
     <script src="{{ asset('assets/js/index.js')}}"></script>
+    <script src="{{ asset('assets/js/index.js')}}"></script>
     @yield('js')
     <script src="{{ asset('assets/js/form-validation.js')}}"></script>
+    <!-- Redas Inicio -->
+    <script src="{{ asset('assets/js/redas.js')}}{{ '?v=' }}{{ time() }}"></script>
+    <!-- Redas Inicio -->
 </body>
 </html>

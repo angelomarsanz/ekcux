@@ -1,4 +1,17 @@
+php7.3 artisan make:model Models/Notificacion
+sudo php7.3 artisan make:controller NotificationController --resource
+
 --
 Cambios en la base de datos
 Se agregó la columna "tasa_cambio" en la tabla currencies
+Se agregó la columna "usuario_aceptante_id" en la tabla transactionable
+Se agregó la columna "fecha_hora_aceptacion" en la tabla transactionable
+Se agregó la columna "datos_para_transaccion" en la tabla transactionable
+Se agregó la columna "contrapartida_id" en la tabla deposits
+Se agregó la columna "contrapartida" en la tabla withdrawals
+Se agregó la columna "recibo_transferencia" en la tabla withdrawals
+Se creó la tabla notificacions
+Se añadieron los estatus: Aceptada y Transferido en la tabla transaction_states
+Se agregó el registro 8 "Ekcux" en la tabla deposit_methods
+
 --

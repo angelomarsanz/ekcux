@@ -37,17 +37,15 @@
                     </li>
                     @endImpersonating
                     <li>
-                        <div id="notification-latest" style="background-color: white; max-width: 500px; max-height: 500px;"" class="nover panel panel-default pre-scrollable">
-                            <div class="panel-body">
-                                <span>
-                                    <a id="cerrar-notificacion" href="javascript:void(0);" class="dropbtn" role="button">
-                                        <i class="icon-close"></i>
-                                    </a>
-                                <span>
-                                <span id="lista-notificaciones">
-                                    <?= $notificaciones ?>
-                                <span>
-                            </div>
+                        <div id="notification-latest" style="background-color: white" class="nover overflow-auto p-3 mb-3 mb-md-0 mr-md-3 bg-light" style="max-width: 260px; max-height: 100px;">
+                            <span>
+                                <a id="cerrar-notificacion" href="javascript:void(0);" class="dropbtn" role="button">
+                                    <i class="icon-close"></i>
+                                </a>
+                            <span>
+                            <span id="lista-notificaciones">
+                                <?= $notificaciones ?>
+                            <span>
                         </div>
                     </li>
                     <li>

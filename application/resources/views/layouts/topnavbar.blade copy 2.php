@@ -37,7 +37,7 @@
                     </li>
                     @endImpersonating
                     <li>
-                        <div id="notification-latest" style="background-color: white; max-width: 500px; max-height: 500px;"" class="nover panel panel-default pre-scrollable">
+                        <div id="notification-latest" style="background-color: white; max-width: 260px; max-height: 260px;" class="nover panel panel-default pre-scrollable">
                             <div class="panel-body">
                                 <span>
                                     <a id="cerrar-notificacion" href="javascript:void(0);" class="dropbtn" role="button">

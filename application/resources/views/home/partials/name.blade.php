@@ -6,6 +6,11 @@
 
 	{{$transaction->activity_title}} <br><a href="#">{{__('To')}} {{$transaction->entity_name}}</a>
 
+@elseif($transaction->activity_title == 'Retiro')
+
+{{$transaction->activity_title}} <br><a href="#">{{__('Para')}} {{$transaction->entity_name}}</a>
+
+
 @elseif($transaction->activity_title == 'Money Received')
 
 	{{$transaction->activity_title}} <br><a href="#">{{__('From')}} {{$transaction->entity_name}}</a>
@@ -37,6 +42,10 @@
 @elseif($transaction->activity_title == 'Deposit')
 
 	{{$transaction->activity_title}} <br><a href="#">{{__('From')}} {{$transaction->entity_name}}</a>
+
+@elseif($transaction->activity_title == 'Fondeo')
+
+{{$transaction->activity_title}} <br><a href="#">{{__('De')}} {{$transaction->entity_name}}</a>
 
 @elseif($transaction->activity_title == 'Sale')
 

@@ -74,11 +74,11 @@
                       </div>
                     </div>
 
-                    <p>{{'Fondos a recibir: '}} {{ number_format($vectorRetiro['neto_a_recibir'], 2, ",", ".")}}</p>
+                    <p>{{'Fondos a recibir: '}} {{ number_format($vectorRetiro['neto_a_recibir'], 2, ",", ".")}} {{ $vectorRetiro['moneda_metodo']}}</p>
                     <p>{{'Tasa de cambio E-USD: 1 E-USD = '}} {{ number_format($vectorRetiro['tasa_cambio_inicial'], 2, ",", ".")}} {{ $vectorRetiro['moneda_metodo']}}</p>
-                    <p>{{'Comisión del cajero E-USD: '}} {{ number_format($vectorRetiro['comision_cajero'], 2, ",", ".") }}
-                    <p>{{'Comisión por servicio E-USD: '}} {{ number_format($vectorRetiro['comision_servicio'], 2, ",", ".")}}</p>
-                    <p>{{'costo fijo transacción E-USD:'}} {{ number_format($vectorRetiro['costo_fijo_transaccion'], 2, ",", ".")}}</p>
+                    <p>{{'Comisión del cajero: '}} {{ number_format($vectorRetiro['comision_cajero'], 2, ",", ".") }} {{ $vectorRetiro['moneda_metodo']}}</p>
+                    <p>{{'Comisión por servicio: '}} {{ number_format($vectorRetiro['comision_servicio'], 2, ",", ".")}} {{ $vectorRetiro['moneda_metodo']}}</p>
+                    <p>{{'costo fijo transacción:'}} {{ number_format($vectorRetiro['costo_fijo_transaccion'], 2, ",", ".")}} {{ $vectorRetiro['moneda_metodo']}}</p>
                     <p>{{'Tasa cambio final: '}} {{ number_format($vectorRetiro['tasa_cambio_final'], 2, ",", ".")}} {{ $vectorRetiro['moneda_metodo']}}</p>
                                        
                     <div class="row mb-5">

@@ -6,7 +6,26 @@ use Illuminate\Database\Eloquent\Model;
 
 class Withdrawal extends Model
 {
-    protected $fillable = ['user_id','transaction_state_id','send_to_platform_name', 'platform_id', 'withdrawal_method_id','gross','fee','net','json_data','currency_id', 'currency_symbol','wallet_id', 'transfer_method_id', 'unique_transaction_id'];
+    protected $fillable = 
+        [
+            'user_id', 
+            'transaction_state_id', 
+            'withdrawal_method_id', 
+            'gross', 
+            'fee', 
+            'net', 
+            'platform_id', 
+            'json_data', 
+            'currency_symbol', 
+            'wallet_id', 
+            'send_to_platform_name', 
+            'currency_id', 
+            'transfer_method_id', 
+            'unique_transaction_id',
+            'contrapartida_id',
+            'recibo_transferencia',
+            'mensaje'
+        ];
 
     public function Transactions(){
         return $this->morphMany('App\Models\Transaction', 'Transactionable');

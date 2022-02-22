@@ -1,8 +1,24 @@
-/opt/lampp/htdocs/ekcux/application/resources/views/layouts/aside.blade.php
+/opt/lampp/htdocs/ekcux/application/app/Http/Controllers/AddCreditController.php
+/opt/lampp/htdocs/ekcux/application/app/Http/Controllers/DepositController.php
+/opt/lampp/htdocs/ekcux/application/app/Http/Controllers/WithdrawalController.php
+/opt/lampp/htdocs/ekcux/application/app/Http/Controllers/HomeController.php
+
+/opt/lampp/htdocs/ekcux/application/resources/views/home/partials/name.blade.php
+/opt/lampp/htdocs/ekcux/application/resources/views/home/partials/solicitudes.blade.php
+
 /opt/lampp/htdocs/ekcux/application/resources/views/layouts/app.blade.php
 /opt/lampp/htdocs/ekcux/application/resources/views/layouts/app_a.blade.php
+/opt/lampp/htdocs/ekcux/application/resources/views/layouts/aside.blade.php
+/opt/lampp/htdocs/ekcux/application/resources/views/layouts/topnavbar.blade.php
+
 /opt/lampp/htdocs/ekcux/application/resources/views/partials/sidebar.blade.php
-/opt/lampp/htdocs/ekcux/application/app/Http/Controllers/WithdrawalController.php
-/opt/lampp/htdocs/ekcux/application/app/Http/Controllers/AddCreditController.php
+
 /opt/lampp/htdocs/ekcux/application/resources/views/wallet/currencies.blade.php
 /opt/lampp/htdocs/ekcux/application/resources/views/wallet/transfer_methods.blade.php
+
+/opt/lampp/htdocs/ekcux/application/resources/views/fondeos/index.blade.php
+/opt/lampp/htdocs/ekcux/application/resources/views/fondeos/agregarPago.blade.php
+
+/opt/lampp/htdocs/ekcux/application/resources/views/retiros/index.blade.php
+
+Valores en la tabla "transaction_states" de la base de datos
