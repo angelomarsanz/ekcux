@@ -290,7 +290,7 @@ class WithdrawalController extends Controller
         }
     }
 
-    public function confirmarRetiro( Request $request, $laang){
+    public function confirmarRetiro( Request $request, $lang){
          
         $transferMethod = TransferMethod::findOrFail($request->tmid);
 
@@ -425,7 +425,7 @@ class WithdrawalController extends Controller
         $retiro = Withdrawal::findOrFail($transaccion->transactionable_id);
         return view('retiros.agregarPagoRetiro')
             ->with('transaccion', $transaccion)
-            ->with('retiro', $retiro);;
+            ->with('retiro', $retiro);
     }
     public function guardarPagoRetiro( Request $request, $lang){
 
@@ -486,17 +486,18 @@ class WithdrawalController extends Controller
         $this->validate($request, [
             'rid'   => 'required|numeric',
         ]);
-
+        /*
         $retiro = Withdrawal::find($request->rid);
-        $retiro->transaction_state_id = 1;
+        $retiro->transaction_state_id = 7;
         $retiro->save();
-
+        */
         $transaction = Transaction::where('transactionable_id', $request->rid)->first();
-        $transaction->transaction_state_id = 1;
+        /*
+        $transaction->transaction_state_id = 7;
         $transaction->save();
 
         $deposit = Deposit::find($retiro->contrapartida_id);
-        $deposit->transaction_state_id = 1;
+        $deposit->transaction_state_id = 7;
         $deposit->save();
         
         $billeteraEkcux = Wallet::find($deposit->wallet_id);
@@ -520,10 +521,10 @@ class WithdrawalController extends Controller
                 'notificacion'	        =>	$notificacion,
                 'estatus_notificacion'  =>  'Creada'
             ]);
-
+        */
         flash(__('Transferencia confirmada'), 'success');
 
-        return redirect(app()->getLocale().'/retiros');
+        return redirect(app()->getLocale().'/calificar/'.$transaction->id);
     }
     // Redas - fin
 }

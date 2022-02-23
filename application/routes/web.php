@@ -302,7 +302,14 @@ Route::group(['prefix' => '{language}', 'middleware' => ['setLanguage']],functio
 
 		// RUTAS DE NOTIFICACIONES
 
+		Route::resource('/notificacions', 'NotificacionController');
+
 		Route::post('actualizarNotificaciones','NotificacionController@actualizarNotificaciones');
 
-});
+		// RUTAS DE CALIFICACIONES
 
+		Route::resource('/calificacions', 'CalificacionController');
+
+		Route::get('/calificar/{id}', 'CalificacionController@calificar')->name('calificacions.calificar')->middleware('auth'); // Redas
+
+});
