@@ -391,15 +391,15 @@ class AddCreditController extends Controller
         ]);
 
         $transaction = Transaction::find($request->tid);
-        $transaction->transaction_state_id = 1;
+        $transaction->transaction_state_id = 7;
         $transaction->save();
 
         $deposit = Deposit::find($transaction->transactionable_id);
-        $deposit->transaction_state_id = 1;
+        $deposit->transaction_state_id = 7;
         $deposit->save();
 
         $retiro = Withdrawal::find($deposit->contrapartida_id);
-        $retiro->transaction_state_id = 1;
+        $retiro->transaction_state_id = 7;
         $retiro->save();
         
         $billeteraEkcux = Wallet::find($deposit->wallet_id);
@@ -424,9 +424,18 @@ class AddCreditController extends Controller
                 'estatus_notificacion'  =>  'Creada'
             ]);
 
+            $notificacion = 'Por favor califique a su compañero <a href="'.url('/').'/'.app()->getLocale().'/calificar/'.$transaction->id.'/leida">Calificar</a>';
+
+            Notificacion::create(
+                [
+                    'user_id'	            =>  $transaction->user_id,
+                    'notificacion'	        =>	$notificacion,
+                    'estatus_notificacion'  =>  'Creada'
+                ]);
+
         flash(__('Transferencia confirmada'), 'success');
 
-        return redirect(app()->getLocale().'/solicitudes/fondeos-aceptados');
+        return redirect(app()->getLocale().'/calificar/'.$transaction->id);
     }
     // Redas - fin
 }

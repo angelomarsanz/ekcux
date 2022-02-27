@@ -6,7 +6,7 @@ use Illuminate\Database\Eloquent\Model;
 
 class Calificacion extends Model
 {
-    protected $fillable = ['user_id', 'calificacion', 'comentario', 'usuario_calificador', 'transactionable_id', 'tipo_transaccion', 'created_at', 'updated_at'];
+    protected $fillable = ['user_id', 'calificacion', 'comentarios', 'usuario_calificador', 'transactionable_id', 'tipo_transaccion', 'created_at', 'updated_at'];
 
     public function user()
     { 

@@ -126,13 +126,21 @@ class NotificacionController extends Controller
         //
     }
 
-    public function actualizarNotificaciones()
+    public function actualizarNotificaciones($tiene_argumento = null)
     {
         $vectorNotificaciones = [];
         $limiteEnvio = 20;
         $notificaciones = '';
 
-        $this->cambiarEstatusEnviadas();
+        $contadorEnviadas = Notificacion::where('user_id', Auth::user()->id)->where('estatus_notificacion', 'Enviada')->count();
+        if ($contadorEnviadas > 0):
+            $notificacionesEnviadas = Notificacion::where('user_id', Auth::user()->id)->where('estatus_notificacion', 'Enviada')->get();
+            foreach ($notificacionesEnviadas as $notificacion):
+                $notificacionFind = Notificacion::find($notificacion->id);
+                $notificacionFind->estatus_notificacion = "Leída";
+                $notificacionFind->save();
+            endforeach;
+        endif;
 
         $contadorCreadas = Notificacion::where('user_id', Auth::user()->id)->where('estatus_notificacion', 'Creada')->count();
         if ($contadorCreadas > 0):
@@ -165,22 +173,13 @@ class NotificacionController extends Controller
                 'notificaciones'    => $notificaciones
             ];
 
+        if (isset($tiene_argumento))
+        {
+            if ($tiene_argumento == '1')
+            {
+                return $vectorNotificaciones;
+            }
+        }
         exit(json_encode($vectorNotificaciones, JSON_FORCE_OBJECT));
-    }
-    public function cambiarEstatusEnviadas()
-    {
-        $contadorEnviadas = Notificacion::where('user_id', Auth::user()->id)->where('estatus_notificacion', 'Enviada')->count();
-        if ($contadorEnviadas > 0):
-            $notificacionesEnviadas = Notificacion::where('user_id', Auth::user()->id)->where('estatus_notificacion', 'Enviada')->get();
-            foreach ($notificacionesEnviadas as $notificacion):
-                $notificacionFind = Notificacion::find($notificacion->id);
-                $notificacionFind->estatus_notificacion = "Leída";
-                $notificacionFind->save();
-            endforeach;
-        endif;       
-    }
-    public function pruebaAjaxPost()
-    {
-        exit('Prueba Ajax Post, al fin funcionó');
     }
 }

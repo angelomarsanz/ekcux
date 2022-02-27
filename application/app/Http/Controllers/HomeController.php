@@ -131,13 +131,13 @@ class HomeController extends Controller
         
         $retiros = Transaction::with(['Status', 'User'])->orderby('id','desc')->where('transaction_state_id', 3)->where('activity_title', 'Retiro')->where('user_id', '!=', Auth::user()->id)->paginate(10);      
 
-        $fondeos_aceptados = Transaction::with(['Status', 'User'])->orderby('id','desc')->where('usuario_aceptante_id', Auth::user()->id)->whereIn('transaction_state_id', [1, 4, 6])->where('activity_title', 'Fondeo')->paginate(10);      
+        $fondeos_aceptados = Transaction::with(['Status', 'User'])->orderby('id','desc')->where('usuario_aceptante_id', Auth::user()->id)->whereIn('transaction_state_id', [1, 4, 6, 7, 8, 9])->where('activity_title', 'Fondeo')->paginate(10);      
 
-        $retiros_aceptados = Transaction::with(['Status', 'User'])->orderby('id','desc')->where('usuario_aceptante_id', Auth::user()->id)->whereIn('transaction_state_id', [1, 5, 6])->where('activity_title', 'Retiro')->paginate(10);      
+        $retiros_aceptados = Transaction::with(['Status', 'User'])->orderby('id','desc')->where('usuario_aceptante_id', Auth::user()->id)->whereIn('transaction_state_id', [1, 5, 6, 7, 8, 9])->where('activity_title', 'Retiro')->paginate(10);      
 
         $notificacion = new NotificacionController();
 
-        $vectorNotificaciones = $notificacion->index();
+        $vectorNotificaciones = $notificacion->actualizarNotificaciones();
 
         return view('home.solicitudes')
         ->with('fondeos', $fondeos)

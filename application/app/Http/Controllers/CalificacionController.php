@@ -4,6 +4,9 @@ namespace App\Http\Controllers;
 
 use Auth;
 use App\Models\Calificacion;
+use App\Models\Transaction;
+use App\Models\Deposit;
+use App\Models\Withdrawal;
 
 use Illuminate\Http\Request;
 
@@ -42,14 +45,40 @@ class CalificacionController extends Controller
     public function store(Request $request)
     {
         $calificacion = Calificacion::create([
-            'user_id'	=>	5,
+            'user_id'	=>	$request->user_id,
             'calificacion' =>  $request->calificacion,
-            'comentario' => $request->comentario,
-            'usuario_calificador' => 6,
+            'comentarios' => $request->comentarios,
+            'usuario_calificador' => $request->usuario_calificador,
             'transactionable_id' => $request->transactionable_id,
-            'tipo_transaccion' => 'retiro'
+            'tipo_transaccion' => $request->tipo_transaccion
         ]);
-        return redirect(app()->getLocale().'/retiros');
+       
+        if ($request->tipo_transaccion == 'Fondeo')
+        {
+            if (Auth::user()->id == $request->transaccion_user_id)
+            {
+                $this->actualizar_estatus($request->transactionable_id, $request->tipo_transaccion, 8);
+                return redirect(app()->getLocale().'/fondeos');
+            }
+            else
+            {
+                $this->actualizar_estatus($request->transactionable_id, $request->tipo_transaccion, 9);
+                return redirect(app()->getLocale().'/solicitudes/fondeos-aceptados');
+            }
+        }
+        else
+        {
+            if (Auth::user()->id == $request->transaccion_user_id)
+            {
+                $this->actualizar_estatus($request->transactionable_id, $request->tipo_transaccion, 8);
+                return redirect(app()->getLocale().'/retiros');
+            }
+            else
+            {
+                $this->actualizar_estatus($request->transactionable_id, $request->tipo_transaccion, 9);
+                return redirect(app()->getLocale().'/solicitudes/retiros-aceptados');
+            }            
+        }
     }
 
     /**
@@ -96,9 +125,47 @@ class CalificacionController extends Controller
     {
         //
     }
-    public function calificar(Request $request, $lang, $id_transaccion)
+    public function calificar(Request $request, $lang, $id_transaccion = null, $notificaciones = null)
     {
+        $transaccion = Transaction::find($id_transaccion);
+
+        $notificacion = new NotificacionController();
+
+        if (isset($notificaciones))
+        {
+            if ($notificaciones == 'leida')
+            {
+                $notificacion->cambiarEstatusEnviadas();
+            }
+        }
+
+        $vectorNotificaciones = $notificacion->index();
+
         return view('calificacions.calificar')
-            ->with('id_transaccion', $id_transaccion);
+            ->with('transaccion', $transaccion)
+            ->with('vectorNotificaciones', $vectorNotificaciones);
+    }
+    public function actualizar_estatus($transactionable_id, $tipo_transaccion = null, $estatus = null)
+    {
+        $transaccion = Transaction::find($transactionable_id);
+        $transaccion->transaction_state_id = $estatus;
+        $transaccion->save();
+
+        if ($tipo_transaccion == 'Fondeo')
+        {
+            $fondeo = Deposit::find($transaccion->transactionable_id);
+            $retiro = Withdrawal::find($fondeo->contrapartida_id);
+        }
+        else
+        {
+            $retiro = Withdrawal::find($transaccion->transactionable_id);
+            $fondeo = Deposit::find($retiro->contrapartida_id);
+        }
+
+        $fondeo->transaction_state_id = $estatus;
+        $fondeo->save();
+
+        $retiro->transaction_state_id = $estatus;
+        $retiro->save();        
     }
 }

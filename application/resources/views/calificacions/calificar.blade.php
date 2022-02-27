@@ -11,7 +11,7 @@
         <div class="col-lg-12">
             <div class="card">
                 <div class="header">
-                    <h2><strong>{{__('Calificar vendedor')}}</strong></h2>
+                    <h2><strong>{{__('Calificar compañero')}}</strong></h2>
                 </div>
                 <div class="body block-header">
                 </div>
@@ -28,13 +28,22 @@
             <div class="body">
               <form action="{{route('calificacions.store', app()->getLocale())}}" method="post" enctype="multipart/form-data" >
                     {{csrf_field()}}
-                    <input type="hidden" value="{{$id_transaccion}}" name="transactionable_id">
+                    @if (Auth::user()->id == $transaccion->user_id)
+                      <input type="hidden"  name="user_id" value="{{$transaccion->usuario_aceptante_id}}">
+                      <input type="hidden"  name="usuario_calificador" value="{{$transaccion->user_id}}">
+                    @else
+                      <input type="hidden"  name="user_id" value="{{$transaccion->user_id}}">
+                      <input type="hidden"  name="usuario_calificador" value="{{$transaccion->usuario_aceptante_id}}">
+                    @endif
+                    <input type="hidden"  name="transactionable_id" value="{{$transaccion->id}}">
+                    <input type="hidden"  name="tipo_transaccion" value="{{$transaccion->activity_title}}">
+                    <input type="hidden"  name="transaccion_user_id" value="{{$transaccion->user_id}}">
 
                     <div class="row mb-5">
                        <div class="col">
                         <div class="form-group {{ $errors->has('calificacion') ? ' has-error' : '' }}">
-                          <label for="unique_transaction_id">{{__('Calificacion')}}</label>
-                          <input type="number" class="form-control" id="calificacion" name="calificacion" value="{{ old('calificacion') }}" required>
+                          <label for="unique_transaction_id">{{__('Calificacion del: 1 -> deficiente al 5 -> excelente')}}</label>
+                          <input type="number" class="form-control" id="calificacion" name="calificacion" value="{{ old('calificacion') }}" required min="1" max="5">
                           @if ($errors->has('calificacion'))
                               <span class="help-block">
                                   <strong>{{ $errors->first('calificacion') }}</strong>
@@ -49,7 +58,7 @@
                       <div class="col">
                         <div class="form-group {{ $errors->has('comentario') ? ' has-error' : '' }}">
                           <label for="message">{{__('Comentarios')}} </label>
-                          <textarea name="comentario" id="comentario" cols="30" rows="10" class="form-control" placeholder="{{__('Comentario')}}" style="border: 1px solid #eeee;"></textarea>
+                          <textarea name="comentarios" id="comentarios" cols="30" rows="1" class="form-control" placeholder="{{__('Comentarios')}}" style="border: 1px solid #eeee;" maxlength="255"></textarea>
                         </div>
                       </div>
                     </div>

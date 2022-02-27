@@ -91,72 +91,51 @@ $(document).ready(function()
         $("#notification-count").html('');   
         $("#notification-latest").removeClass('nover');
     });
-
+    
     $.ajaxSetup({
         headers: {
             'X-CSRF-TOKEN': $('meta[name="csrf-token"]').attr('content')     
         }
     }); 
-
+    
     $('#cerrar-notificacion').click(function()
     {
         $("#notification-latest").addClass('nover');
 
-        var url_base_idioma = $('#url-base-idioma').data('url-base-idioma');
-
-        $.ajax(
-        {
-            url:url_base_idioma+'/actualizarNotificaciones',
-            data:null,
-            type:'POST',
-
-            success: function (response) 
-            {   
-                                
-                vectorNotificaciones = JSON.parse(response);
-                if (vectorNotificaciones.contador > 0)
-                {
-                    $('#notification-count').html(vectorNotificaciones.contador);
-                }
-                $('#lista-notificaciones').html(vectorNotificaciones.notificaciones);
-                
-            },
-            statusCode: 
+        //if ( $("#url-total").length == 0 ) 
+        //{
+            $.ajax(
             {
-                404: function() 
+                url: 'actualizarNotificaciones',
+                data:null,
+                type:'get',
+                success: function (response) 
                 {
-                    alert('web not found');
+                    vectorNotificaciones = JSON.parse(response);
+                    if (vectorNotificaciones.contador > 0)
+                    {
+                        $('#notification-count').html(vectorNotificaciones.contador);
+                    }
+                    $('#lista-notificaciones').html(vectorNotificaciones.notificaciones);
                 },
-            },
-            error:function(x,xs,xt)
-            {
-                window.open(JSON.stringify(x));
-            }
-        });
+                statusCode: 
+                {
+                    404: function() 
+                    {
+                        alert('web not found');
+                    },
+                    405: function() 
+                    {
+                        alert('No autorizado');
+                    }
+                },
+                error:function(x,xs,xt)
+                {
+                    //nos dara el error si es que hay alguno
+                    window.open(JSON.stringify(x));
+                    //alert('error: ' + JSON.stringify(x) +"\n error string: "+ xs + "\n error throwed: " + xt);
+                }
+            });
+        //}
     });
-
-    /*
-    $('#cerrar-notificacion').click(function()
-    {
-        $("#notification-latest").addClass('nover');
-
-        var url_base_idioma = $('#url-base-idioma').data('url-base-idioma');
-        console.log(url_base_idioma+'/pruebaAjaxPost');
-
-        var token = $('meta[name="csrf-token"]').attr('content');
-        var data={prueba:'prueba',_token:token};
-
-        $.ajax(
-        {
-            url:url_base_idioma+'/pruebaAjaxPost',
-            data:data,
-            type:'POST',
-
-            success: function (response) 
-            {   
-                console.log(response);                       
-            }
-        });
-    });
-    */
 });

@@ -304,12 +304,14 @@ Route::group(['prefix' => '{language}', 'middleware' => ['setLanguage']],functio
 
 		Route::resource('/notificacions', 'NotificacionController');
 
-		Route::post('actualizarNotificaciones','NotificacionController@actualizarNotificaciones');
+		Route::post('/actualizarNotificaciones', 'NotificacionController@actualizarNotificaciones')->name('actualizarNotificaciones');
+
+		// Route::post('/pruebaAjaxPost', 'NotificacionController@pruebaAjaxPost')->name('pruebaAjaxPost')->middleware('auth');;
 
 		// RUTAS DE CALIFICACIONES
 
 		Route::resource('/calificacions', 'CalificacionController');
 
-		Route::get('/calificar/{id}', 'CalificacionController@calificar')->name('calificacions.calificar')->middleware('auth'); // Redas
+		Route::get('/calificar/{id}/{notificaciones?}', 'CalificacionController@calificar')->name('calificacions.calificar')->middleware('auth'); // Redas
 
 });

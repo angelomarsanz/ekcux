@@ -59,6 +59,7 @@
     --}}
 </head>
 <body class="{{setting('site.color_theme')}} menu_dark" id="app">
+<div id="url-base-idioma" data-url-base-idioma={{ URL::to('/').'/'.app()->getLocale() }}></div>
 <div class="page-loader-wrapper">
     <div class="loader">
         <div class="m-t-30"><img class="zmdi-hc-spin" src="{{asset('assets/images/logo.svg')}}" width="48" height="48" alt="sQuare"></div>

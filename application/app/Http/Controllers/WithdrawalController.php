@@ -486,13 +486,12 @@ class WithdrawalController extends Controller
         $this->validate($request, [
             'rid'   => 'required|numeric',
         ]);
-        /*
+        
         $retiro = Withdrawal::find($request->rid);
         $retiro->transaction_state_id = 7;
         $retiro->save();
-        */
+        
         $transaction = Transaction::where('transactionable_id', $request->rid)->first();
-        /*
         $transaction->transaction_state_id = 7;
         $transaction->save();
 
@@ -521,7 +520,16 @@ class WithdrawalController extends Controller
                 'notificacion'	        =>	$notificacion,
                 'estatus_notificacion'  =>  'Creada'
             ]);
-        */
+            
+        $notificacion = 'Por favor califique a su compañero <a href="'.url('/').'/'.app()->getLocale().'/calificar/'.$transaction->id.'/leida">Calificar</a>';
+
+        Notificacion::create(
+            [
+                'user_id'	            =>  $transaction->usuario_aceptante_id,
+                'notificacion'	        =>	$notificacion,
+                'estatus_notificacion'  =>  'Creada'
+            ]);
+        
         flash(__('Transferencia confirmada'), 'success');
 
         return redirect(app()->getLocale().'/calificar/'.$transaction->id);
